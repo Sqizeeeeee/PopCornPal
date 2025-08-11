@@ -13,7 +13,9 @@ def main():
 
     print(f"Train size: {len(train_data)}, Test size: {len(test_data)}")
 
-    model_path = 'user_based_cf_model.pkl'
+    model_dir = 'src/models/user_based'
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, 'user_based_cf_model.pkl')
 
     if os.path.exists(model_path):
         with open(model_path, 'rb') as f:
