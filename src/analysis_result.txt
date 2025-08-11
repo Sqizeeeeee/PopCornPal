@@ -1,0 +1,55 @@
+All users: 6040
+All films: 3706
+All ratings: 1000209
+
+Dictribution of ratings:
+rating
+1     56174
+2    107557
+3    261197
+4    348971
+5    226310
+Name: count, dtype: int64
+
+Average ratings per user: 165.60
+Average ratings per film: 269.89
+
+top-5 active users:
+user_id
+4169    2314
+1680    1850
+4277    1743
+1941    1595
+1181    1521
+dtype: int64
+
+top-5 popular films:
+movie_id
+2858    3428
+260     2991
+1196    2990
+1210    2883
+480     2672
+dtype: int64
+
+frequency of genres:
+genres
+Drama          1603
+Comedy         1200
+Action          503
+Thriller        492
+Romance         471
+Horror          343
+Adventure       283
+Sci-Fi          276
+Children's      251
+Crime           211
+War             143
+Documentary     127
+Musical         114
+Mystery         106
+Animation       105
+Fantasy          68
+Western          68
+Film-Noir        44
+Name: count, dtype: int64

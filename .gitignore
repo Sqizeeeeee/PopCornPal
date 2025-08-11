@@ -1,0 +1,6 @@
+TODO
+*.env
+*.env.*
+__pycache__/
+cache/
+tmp/
