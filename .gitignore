@@ -4,3 +4,4 @@ TODO
 __pycache__/
 cache/
 tmp/
+venv
