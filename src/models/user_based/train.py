@@ -1,5 +1,6 @@
 import sys
 import os
+import pickle
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
 
@@ -12,19 +13,30 @@ def main():
 
     print(f"Train size: {len(train_data)}, Test size: {len(test_data)}")
 
-    model = UserBasedCF(train_data, k=25, similarity_threshold=0.1)
-    model.fit()
+    model_path = 'user_based_cf_model.pkl'
+
+    if os.path.exists(model_path):
+        with open(model_path, 'rb') as f:
+            model = pickle.load(f)
+        print("Model loaded from file")
+    else:
+        model = UserBasedCF(train_data, k=25, similarity_threshold=0.2)
+        model.fit()
+        with open(model_path, 'wb') as f:
+            pickle.dump(model, f)
+        print("Model trained and saved")
 
     errors = []
     squared_errors = []
     total = len(test_data)
+
     for i, (_, row) in enumerate(test_data.iterrows(), 1):
         pred = model.predict(row['user_id'], row['movie_id'])
         true = row['rating']
         errors.append(abs(pred - true))
         squared_errors.append((pred - true) ** 2)
         if i % (total // 10) == 0:
-            print(f"Обработано {i} из {total} ({(i / total) * 100:.0f}%)")
+            print(f"Processed {i} of {total} ({(i / total) * 100:.0f}%)")
 
     mae = sum(errors) / len(errors)
     rmse = (sum(squared_errors) / len(squared_errors)) ** 0.5
@@ -34,7 +46,7 @@ def main():
 
     user_id = test_data['user_id'].iloc[0]
     recommendations = model.recommend(user_id, n=10)
-    print(f"top-10 recomendations for user {user_id}:")
+    print(f"Top-10 recommendations for user {user_id}:")
     for movie_id, rating in recommendations:
         print(f"Film ID: {movie_id}, Predicted rating: {rating:.2f}")
 
