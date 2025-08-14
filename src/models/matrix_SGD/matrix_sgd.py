@@ -50,7 +50,6 @@ class MatrixFactorization:
                 self.user_factors[u] += self.lr * (err * item_f - self.reg * user_f)
                 self.item_factors[i] += self.lr * (err * user_f - self.reg * item_f)
 
-            # Можно вывести ошибку по эпохе для контроля (опционально)
 
     def predict_single(self, u, i):
         pred = self.global_mean + self.user_bias[u] + self.item_bias[i] + self.user_factors[u].dot(self.item_factors[i])

@@ -41,12 +41,7 @@ def main():
 
     print(f"\nFinal results => MAE: {mae:.4f}, RMSE: {rmse:.4f}")
 
-    # Сохраняем модель
-    model_path = 'src/models/matrix_SGD/matrix_sgd_model.pkl'
-    os.makedirs(os.path.dirname(model_path), exist_ok=True)
-    with open(model_path, 'wb') as f:
-        pickle.dump(model, f)
-    print(f"Model saved to {model_path}")
+
 
 if __name__ == "__main__":
     main()
