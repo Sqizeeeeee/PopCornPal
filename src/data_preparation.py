@@ -4,14 +4,18 @@ from data_loader import load_movielens_1m
 
 def clean_data(ratings, movies):
     """
-    Удаляет дубликаты и пропуски из данных.
-    Возвращает очищенные таблицы ratings и movies.
+    Remove duplicates and missing values from the data.
+    Returns cleaned ratings and movies DataFrames.
     """
+    # Drop duplicate rows from ratings and movies
     ratings = ratings.drop_duplicates()
     movies = movies.drop_duplicates()
 
+    # Drop rows with missing values if any in ratings
     if ratings.isnull().any().any():
         ratings = ratings.dropna()
+
+    # Drop rows with missing values if any in movies
     if movies.isnull().any().any():
         movies = movies.dropna()
 
@@ -19,9 +23,9 @@ def clean_data(ratings, movies):
 
 def encode_ids(ratings):
     """
-    Преобразует user_id и movie_id в числовые индексы user_idx и movie_idx.
-    Это нужно, чтобы модель могла работать с числовыми идентификаторами.
-    Возвращает обновленный ratings и объекты с оригинальными индексами.
+    Convert user_id and movie_id to numerical indices (user_idx and movie_idx).
+    This is necessary for modeling, which requires numeric IDs.
+    Returns the updated ratings DataFrame along with original index objects.
     """
     ratings['user_idx'], user_index = pd.factorize(ratings['user_id'])
     ratings['movie_idx'], movie_index = pd.factorize(ratings['movie_id'])
@@ -29,9 +33,9 @@ def encode_ids(ratings):
 
 def encode_genres(movies):
     """
-    Преобразует колонку genres в несколько бинарных колонок (one-hot encoding).
-    Например, если жанр Comedy есть, то в колонке 'Comedy' будет 1, иначе 0.
-    Возвращает обновленный movies с дополнительными колонками жанров.
+    Convert the 'genres' column into multiple binary columns (one-hot encoding).
+    For example, if a movie has the genre 'Comedy', the 'Comedy' column will be 1, else 0.
+    Returns the updated movies DataFrame with additional genre columns.
     """
     genres_expanded = movies['genres'].str.get_dummies(sep='|')
     movies = pd.concat([movies, genres_expanded], axis=1)
@@ -39,16 +43,17 @@ def encode_genres(movies):
 
 def split_data(ratings):
     """
-    Разбивает данные рейтингов на тренировочную и тестовую выборки.
-    Стандартное соотношение 80/20.
-    Возвращает две таблицы: train и test.
+    Split the ratings data into training and test sets.
+    Default split ratio is 80% train, 20% test.
+    Returns the train and test DataFrames.
     """
     train, test = train_test_split(ratings, test_size=0.2, random_state=42)
     return train, test
 
 def prepare_data():
     """
-    main fucnction which downloads data, divide data into test/train and returns all objects
+    Main function which loads data, cleans it, encodes IDs and genres,
+    splits the ratings data into train/test sets, and returns all necessary objects.
     """
     ratings, movies = load_movielens_1m()
     ratings, movies = clean_data(ratings, movies)
