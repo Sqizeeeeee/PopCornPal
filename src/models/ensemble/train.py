@@ -2,15 +2,20 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-from data_preparation import prepare_data
-from models.matrix_SGD.matrix_sgd import MatrixFactorization
-from models.ensemble.item_knn_baseline import ItemKNNBaseline
-from models.ensemble.user_knn_baseline import UserKNNBaseline
-from models.ensemble.meta_model import MetaModel
+import joblib
 from sklearn.model_selection import ParameterGrid
 
+# Adding path to the project
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+
+from data_preparation import prepare_data
+from models.matrix_SGD.matrix_sgd import MatrixFactorization
+from models.ensemble.item_knn_baseline import ItemKNNWithMeans
+from models.ensemble.meta_model import MetaModel
+
+
 def evaluate_model(model, test_data):
+    """MAE и RMSE for a model."""
     errors = []
     squared_errors = []
     for row in test_data.itertuples():
@@ -18,105 +23,79 @@ def evaluate_model(model, test_data):
         true = row.rating
         errors.append(abs(pred - true))
         squared_errors.append((pred - true) ** 2)
-    mae = np.mean(errors)
-    rmse = np.sqrt(np.mean(squared_errors))
+    mae = np.nanmean(errors)
+    rmse = np.sqrt(np.nanmean(squared_errors))
     return mae, rmse
 
+
 def main():
-    # Загружаем данные
+    # ========================
+    # 0. Dowloading data
+    # ========================
     train_data, test_data, movies, user_index, movie_index = prepare_data()
     print(f"Train size: {len(train_data)}, Test size: {len(test_data)}\n")
 
-# -----------------------------
-# 1. Подбор MatrixFactorization
-# -----------------------------
-    print("Обучаем MatrixFactorization на полном датасете...")
-    mf_param_grid = {
-        'n_factors': [20, 25, 30],
-        'lr': [0.005, 0.01],
-        'reg': [0.01, 0.05],
-        'n_epochs': [40]  # используем фиксированное количество эпох
-    }
+    # ========================
+    # 1. MatrixFactorization
+    # ========================
+    print("Training MatrixFactorization...")
+    mf_best_params = {'lr': 0.005, 'n_epochs': 60, 'n_factors': 30, 'reg': 0.05}
+    best_mf_model = MatrixFactorization(
+        train_data,
+        n_factors=mf_best_params['n_factors'],
+        lr=mf_best_params['lr'],
+        reg=mf_best_params['reg'],
+        n_epochs=mf_best_params['n_epochs']
+    )
+    best_mf_model.fit()
+    mae, rmse = evaluate_model(best_mf_model, test_data)
+    print(f"MF {mf_best_params} => MAE: {mae:.4f}, RMSE: {rmse:.4f}\n")
 
-    best_mae_mf = float('inf')
-    best_params_mf = None
-    best_mf_model = None
+    # ========================
+    # 2. ItemKNNWithMeans
+    # ========================
+    print("Training ItemKNNWithMeans...")
+    best_item_model = ItemKNNWithMeans(train_data, k=20)
+    mae, rmse = evaluate_model(best_item_model, test_data)
+    print(f"ItemKNN k=20 => MAE: {mae:.4f}\n")
 
-    for params in ParameterGrid(mf_param_grid):
-        mf_model = MatrixFactorization(
-            train_data,
-            n_factors=params['n_factors'],
-            lr=params['lr'],
-            reg=params['reg'],
-            n_epochs=params['n_epochs']
-        )
-        mf_model.fit()
-        mae, rmse = evaluate_model(mf_model, test_data)
-        print(f"MF {params} => MAE: {mae:.4f}, RMSE: {rmse:.4f}")
-        if mae < best_mae_mf:
-            best_mae_mf = mae
-            best_params_mf = params
-            best_mf_model = mf_model
-
-    print(f"\nЛучшие параметры MF: {best_params_mf}, MAE={best_mae_mf:.4f}\n")
-
-    # -----------------------------
-    # 2. ItemKNNBaseline
-    # -----------------------------
-    print("Обучаем ItemKNNBaseline...")
-    best_mae_item = float('inf')
-    best_k_item = None
-    for k in [20, 30, 40]:
-        model = ItemKNNBaseline(k=k)
-        model.fit(train_data)
-        mae, rmse = evaluate_model(model, test_data)
-        print(f"ItemKNN k={k} => MAE: {mae:.4f}")
-        if mae < best_mae_item:
-            best_mae_item = mae
-            best_k_item = k
-            best_item_model = model
-    print(f"Лучший ItemKNN k={best_k_item}, MAE={best_mae_item:.4f}\n")
-
-    # -----------------------------
-    # 3. UserKNNBaseline
-    # -----------------------------
-    print("Обучаем UserKNNBaseline...")
-    best_mae_user = float('inf')
-    best_k_user = None
-    for k in [20, 30, 40]:
-        model = UserKNNBaseline(k=k)
-        model.fit(train_data)
-        mae, rmse = evaluate_model(model, test_data)
-        print(f"UserKNN k={k} => MAE: {mae:.4f}")
-        if mae < best_mae_user:
-            best_mae_user = mae
-            best_k_user = k
-            best_user_model = model
-    print(f"Лучший UserKNN k={best_k_user}, MAE={best_mae_user:.4f}\n")
-
-    # -----------------------------
-    # 4. MetaModel (стэкинг)
-    # -----------------------------
-    print("Обучаем MetaModel...")
+    # ========================
+    # 3. MetaModel (только MF + ItemKNN)
+    # ========================
+    print("Training MetaModel...")
     base_models = {
-        'matrix': mf_model,
-        'item_knn': best_item_model,
-        'user_knn': best_user_model
+        'matrix': best_mf_model,
+        'item_knn': best_item_model
     }
-    param_grid = {'alpha': [0.1, 1.0, 10.0]}
+
+    meta_param_grid = {'alpha': [0.1, 1.0, 10.0]}
     best_mae_meta = float('inf')
     best_alpha = None
+    best_meta_model = None
 
-    for params in ParameterGrid(param_grid):
-        meta_model = MetaModel(base_models=base_models, alpha=params['alpha'])
+    for params in ParameterGrid(meta_param_grid):
+        alpha = params['alpha']
+        meta_model = MetaModel(base_models=base_models, params={'alpha': alpha})
         meta_model.fit(train_data)
         mae, rmse = evaluate_model(meta_model, test_data)
-        print(f"MetaModel alpha={params['alpha']} => MAE: {mae:.4f}")
+        print(f"MetaModel alpha={alpha} => MAE: {mae:.4f}")
         if mae < best_mae_meta:
             best_mae_meta = mae
-            best_alpha = params['alpha']
+            best_alpha = alpha
+            best_meta_model = meta_model
 
-    print(f"\nЛучший MetaModel: alpha={best_alpha}, MAE={best_mae_meta:.4f}")
+    print(f"\nBest MetaModel: alpha={best_alpha}, MAE={best_mae_meta:.4f}")
+
+    # ========================
+    # 4. Saving the best model
+    # ========================
+    save_path = os.path.join(
+        os.path.dirname(__file__), 
+        'meta_model.pkl'
+    )
+    joblib.dump(best_meta_model, save_path)
+    print(f"Model saved in: {save_path}")
+
 
 if __name__ == "__main__":
     main()

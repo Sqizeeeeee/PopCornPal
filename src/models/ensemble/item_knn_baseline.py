@@ -1,76 +1,57 @@
 import numpy as np
 import pandas as pd
-from collections import defaultdict
+from sklearn.metrics.pairwise import cosine_similarity
 
-class ItemKNNBaseline:
-    def __init__(self, k=30):
+class ItemKNNWithMeans:
+    def __init__(self, train_data: pd.DataFrame, k=20):
         self.k = k
-        self.global_mean = None
-        self.user_mean = None
-        self.item_mean = None
-        self.user_ratings = None
-        self.item_ratings = None
-        self.sim_matrix = None
+        self.user_means = None
+        self.item_means = None
+        self.similarity_matrix = None
+        self.ratings_matrix = None
+        self.movie_index = None
+        self.index_movie = None
+        self._fit(train_data)
 
-    def fit(self, ratings: pd.DataFrame):
-        """
-        ratings: pd.DataFrame с колонками ['user_id', 'movie_id', 'rating']
-        """
-        self.global_mean = ratings['rating'].mean()
-        self.user_mean = ratings.groupby('user_id')['rating'].mean().to_dict()
-        self.item_mean = ratings.groupby('movie_id')['rating'].mean().to_dict()
+    def _fit(self, train_data):
+        # строим матрицу user-item
+        self.ratings_matrix = train_data.pivot_table(index="user_id", columns="movie_id", values="rating")
+        self.user_means = self.ratings_matrix.mean(axis=1)
+        self.item_means = self.ratings_matrix.mean(axis=0)
 
-        # Формируем словари для быстрого доступа
-        self.user_ratings = defaultdict(dict)
-        self.item_ratings = defaultdict(dict)
-        for row in ratings.itertuples():
-            self.user_ratings[row.user_id][row.movie_id] = row.rating
-            self.item_ratings[row.movie_id][row.user_id] = row.rating
+        # заменяем NaN на 0 для сходства
+        ratings_filled = self.ratings_matrix.fillna(0)
+        self.movie_index = {m: i for i, m in enumerate(ratings_filled.columns)}
+        self.index_movie = {i: m for m, i in self.movie_index.items()}
 
-        # Вычисляем матрицу сходства
-        self._compute_similarity()
-
-    def _compute_similarity(self):
-        items = list(self.item_ratings.keys())
-        self.sim_matrix = defaultdict(dict)
-
-        for i, item_i in enumerate(items):
-            users_i = self.item_ratings[item_i]
-            mean_i = self.item_mean[item_i]
-            for j, item_j in enumerate(items):
-                if j <= i:
-                    continue  # матрица симметричная
-                users_j = self.item_ratings[item_j]
-                mean_j = self.item_mean[item_j]
-
-                common_users = set(users_i.keys()).intersection(users_j.keys())
-                if not common_users:
-                    sim = 0
-                else:
-                    vec_i = np.array([users_i[u] - mean_i for u in common_users])
-                    vec_j = np.array([users_j[u] - mean_j for u in common_users])
-                    denom = (np.linalg.norm(vec_i) * np.linalg.norm(vec_j))
-                    sim = np.dot(vec_i, vec_j) / denom if denom != 0 else 0
-                self.sim_matrix[item_i][item_j] = sim
-                self.sim_matrix[item_j][item_i] = sim  # симметрия
+        # косинусное сходство между фильмами
+        self.similarity_matrix = cosine_similarity(ratings_filled.T)
 
     def predict(self, user_id, movie_id):
-        if movie_id not in self.item_ratings:
-            return self.global_mean
-        neighbors = self.sim_matrix[movie_id]
-        user_rated_items = self.user_ratings.get(user_id, {})
-        sims = []
-        ratings = []
+        if movie_id not in self.movie_index:
+            return self.user_means.get(user_id, 3.0)
 
-        for item_j, sim in neighbors.items():
-            if item_j in user_rated_items and item_j != movie_id:
-                sims.append(sim)
-                ratings.append(user_rated_items[item_j] - self.item_mean[item_j])
+        user_ratings = self.ratings_matrix.loc[user_id]
+        user_mean = self.user_means.get(user_id, 3.0)
+        target_idx = self.movie_index[movie_id]
 
-        if not sims:
-            return self.item_mean.get(movie_id, self.global_mean)  # fallback
+        # находим фильмы, которые пользователь оценил
+        rated_items = user_ratings.dropna().index
+        if len(rated_items) == 0:
+            return self.item_means.get(movie_id, 3.0)
 
-        sims = np.array(sims)
-        ratings = np.array(ratings)
-        pred = self.item_mean.get(movie_id, self.global_mean) + np.dot(sims, ratings) / (np.sum(np.abs(sims)) + 1e-8)
+        similarities = []
+        ratings_diff = []
+        for m in rated_items:
+            idx = self.movie_index[m]
+            sim = self.similarity_matrix[target_idx, idx]
+            if sim > 0:
+                similarities.append(sim)
+                ratings_diff.append(user_ratings[m] - self.item_means[m])
+
+        if len(similarities) == 0:
+            return self.item_means.get(movie_id, 3.0)
+
+        # формула "WithMeans"
+        pred = self.item_means[movie_id] + np.dot(similarities, ratings_diff) / np.sum(similarities)
         return np.clip(pred, 1, 5)

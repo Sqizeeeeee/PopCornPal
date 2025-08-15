@@ -1,76 +1,61 @@
 import numpy as np
 import pandas as pd
-from collections import defaultdict
+from sklearn.metrics.pairwise import cosine_similarity
 
-class UserKNNBaseline:
-    def __init__(self, k=30):
+class UserKNNWithMeans:
+    def __init__(self, k=20):
         self.k = k
+        self.ratings_matrix = None
+        self.user_means = None
         self.global_mean = None
-        self.user_mean = None
-        self.item_mean = None
-        self.user_ratings = None
-        self.item_ratings = None
-        self.sim_matrix = None
 
-    def fit(self, ratings: pd.DataFrame):
+    def fit(self, data: pd.DataFrame):
         """
-        ratings: pd.DataFrame с колонками ['user_id', 'movie_id', 'rating']
+        data: DataFrame с колонками ['user_id', 'movie_id', 'rating']
         """
-        self.global_mean = ratings['rating'].mean()
-        self.user_mean = ratings.groupby('user_id')['rating'].mean().to_dict()
-        self.item_mean = ratings.groupby('movie_id')['rating'].mean().to_dict()
-
-        # Формируем словари для быстрого доступа
-        self.user_ratings = defaultdict(dict)
-        self.item_ratings = defaultdict(dict)
-        for row in ratings.itertuples():
-            self.user_ratings[row.user_id][row.movie_id] = row.rating
-            self.item_ratings[row.movie_id][row.user_id] = row.rating
-
-        # Вычисляем матрицу сходства
-        self._compute_similarity()
-
-    def _compute_similarity(self):
-        users = list(self.user_ratings.keys())
-        self.sim_matrix = defaultdict(dict)
-
-        for i, user_i in enumerate(users):
-            items_i = self.user_ratings[user_i]
-            mean_i = self.user_mean[user_i]
-            for j, user_j in enumerate(users):
-                if j <= i:
-                    continue  # матрица симметричная
-                items_j = self.user_ratings[user_j]
-                mean_j = self.user_mean[user_j]
-
-                common_items = set(items_i.keys()).intersection(items_j.keys())
-                if not common_items:
-                    sim = 0
-                else:
-                    vec_i = np.array([items_i[item] - mean_i for item in common_items])
-                    vec_j = np.array([items_j[item] - mean_j for item in common_items])
-                    denom = (np.linalg.norm(vec_i) * np.linalg.norm(vec_j))
-                    sim = np.dot(vec_i, vec_j) / denom if denom != 0 else 0
-                self.sim_matrix[user_i][user_j] = sim
-                self.sim_matrix[user_j][user_i] = sim  # симметрия
+        # Строим матрицу рейтингов
+        self.ratings_matrix = data.pivot(index='user_id', columns='movie_id', values='rating')
+        
+        # Средний рейтинг по пользователю
+        self.user_means = self.ratings_matrix.mean(axis=1)
+        
+        # Глобальный средний рейтинг (для новых пользователей/фильмов)
+        self.global_mean = data['rating'].mean()
+        
+        # Заполняем пропуски нулями для вычисления сходства
+        self.filled_matrix = self.ratings_matrix.fillna(0)
+        
+        # Косинусное сходство между пользователями
+        self.sim_matrix = pd.DataFrame(
+            cosine_similarity(self.filled_matrix),
+            index=self.filled_matrix.index,
+            columns=self.filled_matrix.index
+        )
 
     def predict(self, user_id, movie_id):
-        if user_id not in self.user_ratings:
+        # Если пользователь или фильм неизвестен
+        if user_id not in self.ratings_matrix.index or movie_id not in self.ratings_matrix.columns:
             return self.global_mean
 
-        neighbors = self.sim_matrix[user_id]
-        sims = []
-        ratings = []
+        # Пользователи, у которых есть рейтинг для этого фильма
+        users_rated_movie = self.ratings_matrix[movie_id].dropna()
+        if users_rated_movie.empty:
+            return self.user_means.get(user_id, self.global_mean)
 
-        for neighbor_id, sim in neighbors.items():
-            if movie_id in self.user_ratings[neighbor_id] and neighbor_id != user_id:
-                sims.append(sim)
-                ratings.append(self.user_ratings[neighbor_id][movie_id] - self.user_mean[neighbor_id])
+        # Сходство текущего пользователя с другими
+        sims = self.sim_matrix.loc[user_id, users_rated_movie.index]
 
-        if not sims:
-            return self.user_mean.get(user_id, self.global_mean)  # fallback
+        # Выбираем k ближайших
+        top_k = sims.nlargest(self.k)
+        ratings = users_rated_movie[top_k.index]
 
-        sims = np.array(sims)
-        ratings = np.array(ratings)
-        pred = self.user_mean.get(user_id, self.global_mean) + np.dot(sims, ratings) / (np.sum(np.abs(sims)) + 1e-8)
+        # Проверка деления на ноль
+        if top_k.sum() == 0:
+            # Если все сходства нулевые, возвращаем средний рейтинг пользователя или глобальный
+            return self.user_means.get(user_id, self.global_mean)
+
+        # Средневзвешенный рейтинг
+        pred = np.dot(top_k.values, ratings.values) / top_k.sum()
+        
+        # Нормируем в диапазон 1–5
         return np.clip(pred, 1, 5)

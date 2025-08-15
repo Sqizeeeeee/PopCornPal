@@ -3,9 +3,10 @@ import pandas as pd
 from sklearn.linear_model import Ridge
 
 class MetaModel:
-    def __init__(self, base_models: dict, alpha=1.0):
+    def __init__(self, base_models: dict, params=None):
         self.base_models = base_models
-        self.model = Ridge(alpha=alpha, random_state=42)
+        self.params = params or {'alpha': 1.0}  # параметр регуляризации Ridge
+        self.model = Ridge(**self.params)
         self.fitted = False
 
     def fit(self, train_data: pd.DataFrame):
