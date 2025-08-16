@@ -28,3 +28,8 @@ This model implements **User-Based Collaborative Filtering** for movie recommend
 - **Similarity threshold (minimum user similarity cutoff):** 0.2  
 
 These values showed optimal performance during training.
+
+# MAE and RMSE
+
+### MAE = 0.7724
+### RMSE = 0.9726
