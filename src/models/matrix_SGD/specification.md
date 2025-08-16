@@ -21,7 +21,7 @@ This model implements **Matrix Factorization** for movie recommendations by lear
 
 ## Best Parameters Found
 
-- **Number of latent factors:** 20  
+- **Number of latent factors:** 15  
 - **Learning rate:** 0.01  
 - **Regularization (reg):** 0.1  
 - **Number of epochs:** 20  
