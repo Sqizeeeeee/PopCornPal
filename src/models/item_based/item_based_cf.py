@@ -12,16 +12,16 @@ class ItemBasedCF:
         self.item_similarity = None
 
     def fit(self):
-        # Создаем user-item матрицу
+        # Create the user-item matrix
         self.user_item_matrix = self.ratings.pivot(index='user_id', columns='movie_id', values='rating')
         
-        # Вычисляем средний рейтинг каждого фильма (item)
+        # Calculate the mean rating for each item (movie)
         self.item_means = self.user_item_matrix.mean(axis=0)
         
-        # Центрируем рейтинги (вычитаем средний рейтинг фильма)
+        # Center the ratings by subtracting the mean rating of each movie
         self.user_item_matrix = self.user_item_matrix.sub(self.item_means, axis=1).fillna(0)
         
-        # Косинусное сходство между фильмами (по колонкам)
+        # Compute cosine similarity between items (across columns)
         similarity = cosine_similarity(self.user_item_matrix.T)
         self.item_similarity = pd.DataFrame(similarity,
                                             index=self.user_item_matrix.columns,
@@ -32,13 +32,13 @@ class ItemBasedCF:
             return self.ratings['rating'].mean()
         
         if movie_id not in self.item_similarity.index:
-            # Если фильм не в матрице, возвращаем средний рейтинг
+            # If the movie is not in the matrix, return the average rating
             return self.ratings['rating'].mean()
 
-        # Сходства фильма с другими фильмами
+        # Similarities of the target movie with other movies
         sims = self.item_similarity.loc[movie_id]
         
-        # Рейтинги пользователя на другие фильмы
+        # User's ratings on other movies
         user_ratings = self.user_item_matrix.loc[user_id]
 
         neighbors = []
@@ -50,7 +50,7 @@ class ItemBasedCF:
                 neighbors.append((sim, rating))
 
         if not neighbors:
-            # Если соседей нет, возвращаем средний рейтинг фильма (несмотря на центрирование)
+            # If no neighbors found, return the average rating of the movie (despite centering)
             return self.item_means.get(movie_id, self.ratings['rating'].mean())
 
         neighbors.sort(key=lambda x: x[0], reverse=True)
@@ -59,6 +59,6 @@ class ItemBasedCF:
         sims, ratings = zip(*top_neighbors)
         weighted_avg = np.dot(ratings, sims) / np.sum(sims)
 
-        # Добавляем средний рейтинг фильма обратно (де-нормализация)
+        # Add the average movie rating back (de-normalization)
         pred = self.item_means[movie_id] + weighted_avg
         return min(max(pred, 1), 5)
