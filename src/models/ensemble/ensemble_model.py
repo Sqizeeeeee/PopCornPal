@@ -9,10 +9,10 @@ import numpy as np
 class EnsembleModel:
     def __init__(self, mf_params=None, item_knn_k=30, user_knn_k=30, alpha=1.0):
         """
-        mf_params: параметры для MatrixFactorization {'n_factors': int, 'n_epochs': int, 'lr': float, 'reg': float}
-        item_knn_k: количество соседей для ItemKNNBaseline
-        user_knn_k: количество соседей для UserKNNBaseline
-        alpha: регуляризация для MetaModel (Ridge)
+        mf_params: params for MatrixFactorization {'n_factors': int, 'n_epochs': int, 'lr': float, 'reg': float}
+        item_knn_k: neighbors number for ItemKNNBaseline
+        user_knn_k: neighbors number for UserKNNBaseline
+        alpha: ridge fro MetaModel (Ridge)
         """
         self.mf_params = mf_params or {'n_factors': 15, 'n_epochs': 35, 'lr': 0.005, 'reg': 0.01}
         self.item_knn_k = item_knn_k
@@ -25,19 +25,19 @@ class EnsembleModel:
         self.meta_model = None
 
     def fit(self, train_data: pd.DataFrame):
-        print("Обучаем MatrixFactorization...")
+        print("Training MatrixFactorization...")
         self.mf_model = MatrixFactorization(train_data, **self.mf_params)
         self.mf_model.fit()
 
-        print("Обучаем ItemKNNBaseline...")
+        print("Trainingм ItemKNNBaseline...")
         self.item_knn_model = ItemKNNBaseline(k=self.item_knn_k)
         self.item_knn_model.fit(train_data)
 
-        print("Обучаем UserKNNBaseline...")
+        print("Training UserKNNBaseline...")
         self.user_knn_model = UserKNNBaseline(k=self.user_knn_k)
         self.user_knn_model.fit(train_data)
 
-        print("Обучаем MetaModel (стэкинг)...")
+        print("Training MetaModel (stacking)...")
         base_models = {
             'matrix': self.mf_model,
             'item_knn': self.item_knn_model,
@@ -48,7 +48,7 @@ class EnsembleModel:
 
     def predict(self, user_id, movie_id):
         if self.meta_model is None:
-            raise ValueError("Модель не обучена. Сначала вызовите fit()")
+            raise ValueError("Model didn't train. First use fit()")
         return self.meta_model.predict(user_id, movie_id)
 
     def evaluate(self, test_data: pd.DataFrame):
