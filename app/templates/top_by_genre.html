@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Top Movies by Genre</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles_top.css') }}">
+</head>
+<body>
+    <h1>Top 10 Movies by Genre</h1>
+
+    {% for genre, movies in top_by_genre.items() %}
+        <div class="genre-block">
+            <h2>{{ genre }}</h2>
+            <ul class="movie-list">
+                {% for movie, rating in movies %}
+                    <li>{{ movie }} — {{ "%.1f"|format(rating) }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endfor %}
+</body>
+</html>

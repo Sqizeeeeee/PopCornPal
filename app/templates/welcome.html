@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PopCornPal 🍿</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_welcome.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('main.welcome') }}" class="nav-logo">PopcornPal 🍿</a>
+            <div class="nav-links">
+                <a href="{{ url_for('main.welcome') }}">Home</a>
+                <a href="{{ url_for('main.top_movies') }}">Top 10 Films</a>
+                <a href="{{ url_for('main.register') }}">Sign Up</a>
+                <a href="{{ url_for('main.login') }}">Log In</a>
+            </div>
+        </div>
+    </nav>
+
+    <header>
+        <h1>Find Your Perfect Movie Night with PopCornPal!</h1>
+        <p class="subtitle">Discover, rate, and explore the best movies from all genres!</p>
+    </header>
+
+    <main>
+        <section class="intro-section">
+            <div class="intro-text">
+                <p>PopCornPal is your AI-powered movie assistant 🍿, helping you pick the perfect film for any mood or occasion. Say goodbye to endless scrolling and hello to your next favorite movie!</p>
+                <p class="top-movies-link">
+                    <a href="{{ url_for('main.register') }}">🎞 Sign Up</a>
+                </p>
+            </div>
+            <div class="intro-images">
+                <img src="/static/img/welcome/1.jpg" alt="Movie 1">
+                <img src="/static/img/welcome/2.jpg" alt="Movie 2">
+            </div>
+        </section>
+    </main>
+</body>
+</html>
