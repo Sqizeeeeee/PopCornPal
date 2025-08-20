@@ -27,13 +27,13 @@
 
         <form method="POST" class="register-form">
             <label>Username:</label>
-            <input type="text" name="username" placeholder="Choose a username" required>
+            <input type="text" name="username" placeholder="Choose a username" required value="{{ username|default('') }}">
 
             <label>Email:</label>
-            <input type="email" name="email" placeholder="example@mail.com" required>
+            <input type="email" name="email" placeholder="example@mail.com" required value="{{ email|default('') }}">
 
             <label>Password:</label>
-            <input type="password" name="password" placeholder="At least 8 characters" required>
+            <input type="password" name="password" placeholder="At least 6 characters" required>
 
             <button type="submit">Sign up</button>
         </form>

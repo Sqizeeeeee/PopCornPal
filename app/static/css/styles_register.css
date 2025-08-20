@@ -53,18 +53,29 @@ body {
 
 .flash-messages li.success::before {
     content: '✅';
-    font-size: 18px;
+    font-size: 22px;
 }
 
-.flash-messages li.danger {
+.flash-messages li.error {
     background-color: rgba(255, 59, 46, 0.15);
     color: #ff3b2e;
     border: 1px solid #ff3b2e;
 }
 
-.flash-messages li.danger::before {
+.flash-messages li.error::before {
     content: "❌";
-    font-size: 18px;
+    font-size: 22px;
+}
+
+.flash-messages li.danger {
+    background-color: rgba(177, 159, 23, 0.15);
+    color: #ffe347;
+    border: 1px solid #ffe347;
+}
+
+.flash-messages li.danger::before {
+    content: "⚠️";
+    font-size: 22px;
 }
 
 .flash-messages li.hide {

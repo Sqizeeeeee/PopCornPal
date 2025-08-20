@@ -2,6 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, flash,
 from . import db
 from .models import User
 import pandas as pd
+import re
 
 bp = Blueprint('main', __name__)
 
@@ -18,13 +19,24 @@ def register():
         password = request.form.get('password')
 
         if User.query.filter_by(username=username).first():
-            flash("Username already exists. Try another one", "danger")
+            flash("Username already exists. Try another one", "error")
             return redirect(url_for('main.register'))
         
         if User.query.filter_by(email=email).first():
-            flash("Email already registered. Try to log in", "danger")
-            return redirect(url_for('main.register'))
+            flash("Email already registered. Try to log in", "error")
+            return render_template('register.html', username=username)
         
+        if len(password) < 6:
+            flash("Password is too short (min 6 characters).", "danger")
+            return render_template('register.html', username=username, email=email)
+        
+        if len(password) > 15:
+            flash("Password is too long (max 15 characters).", "danger")
+            return render_template('register.html', username=username, email=email)
+        
+        if not re.search(r"[A-Z]", password):
+            flash("Password must contain at least one uppercase letter.", "danger")
+            return render_template('register.html', username=username, email=email)
 
         new_user = User(username=username, email=email)
         new_user.set_password(password)
@@ -48,7 +60,7 @@ def login():
         ).first()
 
         if not user or not user.check_password(password):
-            flash("Invalid username, email or password", "danger")
+            flash("Invalid username, email or password", "error")
             return redirect(url_for('main.login'))
         
         session['user_id'] = user.id
