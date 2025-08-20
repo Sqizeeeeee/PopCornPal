@@ -4,41 +4,55 @@
     <meta charset="UTF-8">
     <title>Register</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_register.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- Подключаем navbar -->
+    <!-- Navbar -->
     {% include 'nav.html' %}
 
-    <h1>Register</h1>
+    <div class="register-container">
+        <h1>Register</h1>
 
-    <!-- Flash messages -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <ul>
-                {% for category, message in messages %}
-                    {% if category == 'success' %}
-                        <li style="color: green;">{{ message }}</li>
-                    {% else %}
-                        <li style="color: red;">{{ message }}</li>
-                    {% endif %}
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endwith %}
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
-    <form method="POST">
-        <label>Username:</label><br>
-        <input type="text" name="username" required><br><br>
+        <form method="POST" class="register-form">
+            <label>Username:</label>
+            <input type="text" name="username" required>
 
-        <label>Email:</label><br>
-        <input type="email" name="email" required><br><br>
+            <label>Email:</label>
+            <input type="email" name="email" required>
 
-        <label>Password:</label><br>
-        <input type="password" name="password" required><br><br>
+            <label>Password:</label>
+            <input type="password" name="password" required>
 
-        <button type="submit">Sign up</button>
-    </form>
+            <button type="submit">Sign up</button>
+        </form>
 
-    <p><a href="{{ url_for('main.welcome') }}">Back to Home</a></p>
+        <p class="back-link">
+            <a href="{{ url_for('main.welcome') }}">⬅ Back to Home</a>
+        </p>
+    </div>
+    <script>
+        // Автоматическое скрытие флешей через 3 сек
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-messages li");
+            flashes.forEach(flash => {
+                setTimeout(() => {
+                    flash.classList.add("hide");
+                    setTimeout(() => flash.remove(), 500); // удаляем после анимации
+                }, 3000); // время показа 3 секунды
+            });
+        });
+    </script>
 </body>
 </html>

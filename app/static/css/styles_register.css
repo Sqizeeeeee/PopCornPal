@@ -1,0 +1,126 @@
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #1a1a2e;
+    color: #ffffff;
+}
+
+/* Контейнер */
+.register-container {
+    max-width: 450px;
+    margin: 80px auto;
+    padding: 20px;
+    background-color: #162447;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+/* Заголовок */
+.register-container h1 {
+    margin-bottom: 20px;
+    font-size: 32px;
+    color: #ff6f61;
+}
+
+/* Flash messages */
+.flash-messages {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.flash-messages li {
+    padding: 12px 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.flash-messages li.success {
+    background-color: rgba(76, 175, 80, 0.15);
+    color: #4caf50;
+    border: 1px solid #4caf50;
+}
+
+.flash-messages li.success::before {
+    content: '✅';
+    font-size: 18px;
+}
+
+.flash-messages li.danger {
+    background-color: rgba(255, 59, 46, 0.15);
+    color: #ff3b2e;
+    border: 1px solid #ff3b2e;
+}
+
+.flash-messages li.danger::before {
+    content: "❌";
+    font-size: 18px;
+}
+
+.flash-messages li.hide {
+    opacity: 0;
+}
+
+/* Форма */
+.register-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    text-align: left;
+}
+
+.register-form label {
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.register-form input {
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    outline: none;
+    transition: box-shadow 0.3s;
+}
+
+.register-form input:focus {
+    box-shadow: 0 0 8px #ff6f61;
+}
+
+/* Кнопка */
+.register-form button {
+    padding: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    background-color: #ff6f61;
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.register-form button:hover {
+    background-color: #ff3b2e;
+}
+
+/* Back link */
+.back-link {
+    margin-top: 20px;
+}
+
+.back-link a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.back-link a:hover {
+    color: #ff6f61;
+}
