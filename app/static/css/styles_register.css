@@ -82,14 +82,17 @@ body {
 .register-form input {
     padding: 12px;
     border: none;
-    border-radius: 8px;
+    border-radius: 12px;
     font-size: 16px;
     outline: none;
-    transition: box-shadow 0.3s;
+    transition: box-shadow 0.4s;
 }
 
 .register-form input:focus {
-    box-shadow: 0 0 8px #ff6f61;
+    border-color: #ff6f61;
+    box-shadow: 0 0 10px rgba(255, 111, 97, 0.8),
+                0 0 20px rgba(255, 111, 97, 0.6),
+                0 0 30px rgba(255, 111, 97, 0.4);
 }
 
 /* Кнопка */
@@ -107,6 +110,21 @@ body {
 
 .register-form button:hover {
     background-color: #ff3b2e;
+}
+
+.register-form input {
+    width: 90%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+.register-form input::placeholder {
+    color: #999;
+    font-style: italic;
+    opacity: 0.9;
 }
 
 /* Back link */

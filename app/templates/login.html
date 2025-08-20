@@ -1,19 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_login.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Login</h1>
-    <form method="POST">
-        <label for="username_or_email">Username or Email:</label>
-        <input type="text" name="username_or_email" id="username_or_email" required><br>
+    <!-- Navbar -->
+    {% include 'nav.html' %}
 
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password" required><br>
+    <div class="login-container">
+        <h1>Login</h1>
 
-        <button type="submit">Login</button>
-    </form>
-    <p>Don't have an account? <a href="{{ url_for('main.register') }}">Register here</a></p>
+        <!-- Flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="login-form">
+            <label for="username_or_email">Username or Email:</label>
+            <input type="text" name="username_or_email" id="username_or_email" placeholder="e.g. johndoe or example@mail.com" required>
+
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" placeholder="Enter your password" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <p class="back-link">
+            Don't have an account? <a href="{{ url_for('main.register') }}">Register here</a>
+        </p>
+    </div>
+
+    <script>
+        // Автоматическое скрытие флэшей через 3 сек
+        document.addEventListener("DOMContentLoaded", () => {
+            const flashes = document.querySelectorAll(".flash-messages li");
+            flashes.forEach(flash => {
+                setTimeout(() => {
+                    flash.classList.add("hide");
+                    setTimeout(() => flash.remove(), 500);
+                }, 3000);
+            });
+        });
+    </script>
 </body>
 </html>
