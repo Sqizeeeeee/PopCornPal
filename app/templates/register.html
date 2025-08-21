@@ -42,30 +42,6 @@
             <a href="{{ url_for('main.welcome') }}">⬅ Back to Home</a>
         </p>
     </div>
-    <script>
-        // Автоматическое скрытие флешей через 3 сек
-        document.addEventListener("DOMContentLoaded", () => {
-            const flashes = document.querySelectorAll(".flash-messages li");
-            flashes.forEach(flash => {
-                setTimeout(() => {
-                    flash.classList.add("hide");
-                    setTimeout(() => flash.remove(), 500); // удаляем после анимации
-                }, 3000); // время показа 3 секунды
-            });
-
-            const emojis = ["🎫", "🎰", "💰", "🏃‍♂️", "🎥", "🎬", "🍿", "🎞️", "🏴‍☠️", "🇺🇸", "👮‍♂️", "🚔", "🕵️‍♂️", "🚨", "💼", " 🚀", "✈️", "🍕", "☢️", "⁉️", "👑", "🗡️", "🎫", "🎰", "💰", "🏃‍♂️", "🎥", "🎬", "🍿", "🎞️", "🏴‍☠️", "🇺🇸", "👮‍♂️", "🚔", "🕵️‍♂️", "🚨", "💼", " 🚀", "✈️", "🍕", "☢️", "⁉️", "👑", "🗡️", "⭐️", "❄️", "🌊", "💧", "⚽️", "🌄", "🌃", "🔥", "🐬", "⭐️", "❄️", "🌊", "💧", "⚽️", "🌄", "🌃", "🔥", "🐬"];
-            const body = document.body;
-
-            emojis.forEach(emoji => {
-                const div = document.createElement("div");
-                div.classList.add("emoji-bg");
-                div.textContent = emoji;
-                div.style.left = Math.random() * 95 + "%";
-                div.style.fontSize = (20 + Math.random() * 20) + "px";
-                div.style.animationDuration = (8 + Math.random() * 8) + "s";
-                body.appendChild(div);
-            });
-        });
-    </script>
+    <script src="{{ url_for('static', filename='js/script_register.js')  }}"></script>
 </body>
 </html>
