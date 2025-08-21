@@ -3,20 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <title>Top Movies by Genre</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles_top.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_top.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_nav.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>Top 10 Movies by Genre</h1>
+    {% include 'nav.html' %}
+    <h1>Top Movies by Genre</h1>
 
-    {% for genre, movies in top_by_genre.items() %}
-        <div class="genre-block">
-            <h2>{{ genre }}</h2>
-            <ul class="movie-list">
-                {% for movie, rating in movies %}
-                    <li>{{ movie }} — {{ "%.1f"|format(rating) }}</li>
-                {% endfor %}
-            </ul>
+    <div class="genre-container">
+        {% set genres_list = top_by_genre.keys()|list %}
+        {% set left_genres = genres_list[:(genres_list|length // 2)] %}
+        {% set right_genres = genres_list[(genres_list|length // 2):] %}
+
+        <div class="left-column">
+            {% for genre in left_genres %}
+                <section class="genre-block">
+                    <h2>{{ genre }}</h2>
+                    <div class="movies-split">
+                        <!-- Левая колонка: новые фильмы -->
+                        <ul class="new-movies">
+                            {% for movie, rating, year in top_by_genre[genre]['new'] %}
+                                <li>{{ movie }} ({{ year }}) — {{ "%.1f"|format(rating) }}</li>
+                            {% endfor %}
+                        </ul>
+                        <!-- Правая колонка: старые фильмы -->
+                        <ul class="old-movies">
+                            {% for movie, rating, year in top_by_genre[genre]['old'] %}
+                                <li>{{ movie }} ({{ year }}) — {{ "%.1f"|format(rating) }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </section>
+            {% endfor %}
         </div>
-    {% endfor %}
+
+        <div class="right-column">
+            {% for genre in right_genres %}
+                <section class="genre-block">
+                    <h2>{{ genre }}</h2>
+                    <div class="movies-split">
+                        <!-- Левая колонка: новые фильмы -->
+                        <ul class="new-movies">
+                            {% for movie, rating, year in top_by_genre[genre]['new'] %}
+                                <li>{{ movie }} ({{ year }}) — {{ "%.1f"|format(rating) }}</li>
+                            {% endfor %}
+                        </ul>
+                        <!-- Правая колонка: старые фильмы -->
+                        <ul class="old-movies">
+                            {% for movie, rating, year in top_by_genre[genre]['old'] %}
+                                <li>{{ movie }} ({{ year }}) — {{ "%.1f"|format(rating) }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </section>
+            {% endfor %}
+        </div>
+    </div>
 </body>
 </html>

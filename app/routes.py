@@ -78,6 +78,7 @@ def logout():
 @bp.route('/top-movies')
 def top_movies():
     import pandas as pd
+    import re
 
     # Загрузка данных
     ratings = pd.read_csv(
@@ -95,7 +96,7 @@ def top_movies():
         encoding='latin-1'
     )
 
-    # Функция для исправления названий
+    # Исправление названий
     def fix_title(title):
         if ', The' in title:
             return 'The ' + title.replace(', The', '')
@@ -106,20 +107,40 @@ def top_movies():
         else:
             return title
 
-    # Применяем исправление
     movies['title'] = movies['title'].apply(fix_title)
 
-    # Считаем средние рейтинги
+    # Извлечение года
+    def extract_year(title):
+        match = re.search(r'\((\d{4})\)', title)
+        if match:
+            year = int(match.group(1))
+            clean_title = re.sub(r'\s*\(\d{4}\)', '', title)
+            return clean_title, year
+        return title, None
+
+    movies[['title', 'year']] = movies['title'].apply(lambda x: pd.Series(extract_year(x)))
+
+    # Средние рейтинги
     movies_stats = ratings.groupby('movie_id')['rating'].mean().reset_index()
     movies_stats = movies_stats.merge(movies, on='movie_id')
 
-    # Формируем топ-10 по жанрам
+    # Формируем топ-5 новых и старых фильмов по жанрам
     top_by_genre = {}
     all_genres = set(g for gs in movies['genres'].str.split('|') for g in gs)
 
     for genre in all_genres:
         genre_movies = movies_stats[movies_stats['genres'].str.contains(genre)]
-        top10 = genre_movies.sort_values('rating', ascending=False).head(10)[['title', 'rating']].values.tolist()
-        top_by_genre[genre] = top10
+
+        # Сортируем по рейтингу
+        sorted_movies = genre_movies.sort_values('rating', ascending=False)
+
+        # Делим на новые и старые
+        new_movies = sorted_movies[sorted_movies['year'] > 1980].head(5)[['title', 'rating', 'year']].values.tolist()
+        old_movies = sorted_movies[sorted_movies['year'] <= 1980].head(5)[['title', 'rating', 'year']].values.tolist()
+
+        top_by_genre[genre] = {
+            'new': new_movies,
+            'old': old_movies
+        }
 
     return render_template('top_by_genre.html', top_by_genre=top_by_genre)

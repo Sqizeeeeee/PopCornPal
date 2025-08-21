@@ -1,30 +1,90 @@
 body {
-    font-family: Arial, sans-serif;
-    background: #f2f2f2;
     margin: 0;
-    padding: 20px;
+    font-family: 'Poppins', sans-serif;
+    background-color: #1a1a2e;
+    color: #ffffff;
 }
+
 h1 {
     text-align: center;
+    margin: 30px 0;
+    color: #f0f0f0;
+    font-size: 55px;
 }
+
+.genre-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    padding: 0 2%; /* общий отступ контейнера слева и справа */
+    box-sizing: border-box;
+}
+
+.left-column,
+.right-column {
+    width: 49%; /* оставляем ширину для двух колонок */
+    margin: 0;  /* убираем индивидуальные маргины */
+}
+
 .genre-block {
-    background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    background-color: #162447; /* тёмный блок под фон */
+    margin-bottom: 30px;
     padding: 15px;
-    margin-bottom: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
 }
+
+.genre-block {
+    background-color: #162447; /* тёмный блок под фон */
+    margin-bottom: 30px;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    transition: all 0.3s ease; /* плавный переход для hover */
+}
+
+.genre-block:hover {
+    background-color: #1f2a60; /* чуть светлее при наведении */
+    box-shadow:
+        0 0 10px #ff0044,
+        0 0 20px #ff0044,
+        0 0 30px #ff0044,
+        0 0 40px #ff0044; /* более заметная тень */
+    transform: translateY(-3px); /* лёгкий подъём */
+}
+
 .genre-block h2 {
     margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 25px;
+    color: #e43f5a; /* яркий акцент для жанра */
 }
-.movie-list {
+
+.movies-split {
+    display: flex;
+    gap: 10px;
+}
+
+.movies-split ul {
     list-style: none;
-    padding-left: 0;
+    padding: 0;
+    width: 48%;
 }
-.movie-list li {
-    padding: 5px 0;
-    border-bottom: 1px solid #eee;
+
+.movies-split li {
+    margin-bottom: 6px;
+    line-height: 1.4;
+    font-size: 22px;
 }
-.movie-list li:last-child {
-    border-bottom: none;
+
+/* Новые фильмы — жирные и ярче */
+.new-movies li {
+    font-weight: 600;
+    color: #f0f0f0;
+}
+
+/* Старые фильмы — немного приглушённый цвет */
+.old-movies li {
+    color: #b0b0b0;
+    font-style: italic;
 }
