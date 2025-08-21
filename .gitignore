@@ -6,3 +6,4 @@ cache/
 tmp/
 venv
 *.pkl
+*.db

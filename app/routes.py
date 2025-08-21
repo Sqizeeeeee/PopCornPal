@@ -1,4 +1,5 @@
 from flask import render_template, Blueprint, request, redirect, url_for, flash, session
+from functools import wraps
 from . import db
 from .models import User
 import pandas as pd
@@ -9,6 +10,17 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 def welcome():
     return render_template('welcome.html')
+
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash("Please log in to access this page.", "error")
+            return redirect(url_for('main.login'))
+        return f(*args, **kwargs)
+    return decorated_function
+
 
 
 @bp.route('/register', methods=["GET", "POST"])
@@ -65,7 +77,7 @@ def login():
         
         session['user_id'] = user.id
         flash(f'Welcome back, {user.username}!', "success")
-        return redirect(url_for('main.welcome'))
+        return redirect(url_for('main.profile'))
     return render_template('login.html')
 
 @bp.route('/logout')
@@ -144,3 +156,11 @@ def top_movies():
         }
 
     return render_template('top_by_genre.html', top_by_genre=top_by_genre)
+
+
+@bp.route('/profile')
+@login_required
+def profile():
+    user = User.query.get(session['user_id'])
+    user_ratings = user.ratings
+    return render_template('profile.html', user=user, ratings=user_ratings)
