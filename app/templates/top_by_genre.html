@@ -21,13 +21,11 @@
                 <section class="genre-block">
                     <h2>{{ genre }}</h2>
                     <div class="movies-split">
-                        <!-- Левая колонка: новые фильмы -->
                         <ul class="new-movies">
                             {% for movie, rating, year in top_by_genre[genre]['new'] %}
                                 <li>{{ movie }} ({{ year }}) — {{ "%.1f"|format(rating) }}</li>
                             {% endfor %}
                         </ul>
-                        <!-- Правая колонка: старые фильмы -->
                         <ul class="old-movies">
                             {% for movie, rating, year in top_by_genre[genre]['old'] %}
                                 <li>{{ movie }} ({{ year }}) — {{ "%.1f"|format(rating) }}</li>
@@ -43,13 +41,11 @@
                 <section class="genre-block">
                     <h2>{{ genre }}</h2>
                     <div class="movies-split">
-                        <!-- Левая колонка: новые фильмы -->
                         <ul class="new-movies">
                             {% for movie, rating, year in top_by_genre[genre]['new'] %}
                                 <li>{{ movie }} ({{ year }}) — {{ "%.1f"|format(rating) }}</li>
                             {% endfor %}
                         </ul>
-                        <!-- Правая колонка: старые фильмы -->
                         <ul class="old-movies">
                             {% for movie, rating, year in top_by_genre[genre]['old'] %}
                                 <li>{{ movie }} ({{ year }}) — {{ "%.1f"|format(rating) }}</li>
@@ -60,5 +56,7 @@
             {% endfor %}
         </div>
     </div>
+
+        <script src="{{ url_for('static', filename='js/script_top.js')  }}"></script>
 </body>
 </html>
