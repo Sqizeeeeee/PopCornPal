@@ -1,6 +1,5 @@
-from flask import render_template, Blueprint, request, redirect, url_for, flash, session, jsonify
-from flask_login import current_user
-from functools import wraps
+from flask import render_template, Blueprint, request, redirect, url_for, flash, jsonify
+from flask_login import current_user, login_user, logout_user, login_required
 from . import db
 from .models import User, Rating, SURVEY_MOVIES
 import pandas as pd
@@ -11,17 +10,6 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 def welcome():
     return render_template('welcome.html')
-
-
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if 'user_id' not in session:
-            flash("Please log in to access this page.", "error")
-            return redirect(url_for('main.login'))
-        return f(*args, **kwargs)
-    return decorated_function
-
 
 
 @bp.route('/register', methods=["GET", "POST"])
@@ -76,23 +64,22 @@ def login():
             flash("Invalid username, email or password", "error")
             return redirect(url_for('main.login'))
         
-        session['user_id'] = user.id
+        login_user(user)
         flash(f'Welcome back, {user.username}!', "success")
         return redirect(url_for('main.profile'))
     return render_template('login.html')
 
+
 @bp.route('/logout')
+@login_required
 def logout():
-    session.pop('user_id', None)
+    logout_user()
     flash("You have been logged out", "info")
     return redirect(url_for('main.welcome'))
 
 
 @bp.route('/top-movies')
 def top_movies():
-    import pandas as pd
-    import re
-
     # Загрузка данных
     ratings = pd.read_csv(
         'data/ml-1m/ratings.dat',
@@ -162,9 +149,9 @@ def top_movies():
 @bp.route('/profile')
 @login_required
 def profile():
-    user = User.query.get(session['user_id'])
-    user_ratings = user.ratings
-    return render_template('profile.html', user=user, ratings=user_ratings)
+    user = current_user
+    return render_template('profile.html', user=user, ratings=user.ratings)
+
 
 @bp.route('/survey', methods=['GET', 'POST'])
 @login_required

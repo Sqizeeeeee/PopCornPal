@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const surveyData = {};
     const form = document.querySelector('.survey-form');
+    if (!form) return; // если форма не найдена, выходим
 
-    // Функция обновления цвета ползунка
     function updateSliderColor(slider) {
         const percent = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
         slider.style.background = `linear-gradient(to right, #ff6b6b 0%, #ff6b6b ${percent}%, #555 ${percent}%, #555 100%)`;
@@ -11,16 +11,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.survey-item').forEach(item => {
         const slider = item.querySelector('.slider');
         const output = item.querySelector('.slider-value');
-        const skip = item.querySelector('.skip-label input[type="checkbox"]'); // ✅ правильный селектор
+        const skip = item.querySelector('.skip-label input[type="checkbox"]');
         const movieId = item.dataset.id;
 
-        // Инициализация значения и цвета
+        if (!slider || !output || !skip) return; // пропускаем, если чего-то нет
+
         let val = parseFloat(slider.value);
         surveyData[movieId] = val;
         output.textContent = val.toFixed(1);
         updateSliderColor(slider);
 
-        // Обновление значения при движении ползунка
         const updateValue = () => {
             if (!skip.checked) {
                 val = parseFloat(slider.value);
@@ -31,9 +31,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         slider.addEventListener('input', updateValue);
-        slider.addEventListener('change', updateValue); // для Safari
+        slider.addEventListener('change', updateValue);
 
-        // Обработка skip
         skip.addEventListener('change', () => {
             if (skip.checked) {
                 delete surveyData[movieId];
@@ -50,9 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Отправка данных через fetch
     form.addEventListener('submit', (e) => {
         e.preventDefault();
+        if (Object.keys(surveyData).length === 0) {
+            alert("Please rate at least one movie or skip some.");
+            return;
+        }
 
         fetch('/survey', {
             method: 'POST',

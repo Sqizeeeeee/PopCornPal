@@ -34,7 +34,7 @@
                 <tr>
                     <td>{{ r.movie_title }}</td>
                     <td>{{ r.rating }}</td>
-                    <td>{{ r.created_at.strftime("%Y-%m-%d") }}</td>
+                    <td>{{ r.created_at.strftime("%d %B") }}</td>
                 </tr>
             {% endfor %}
             </tbody>
