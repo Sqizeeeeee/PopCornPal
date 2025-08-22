@@ -1,0 +1,189 @@
+/* ==== Общие стили ==== */
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #1a1a2e;
+    color: #fff;
+}
+
+/* ==== Контейнер формы ==== */
+.survey-container {
+    max-width: 700px;
+    margin: 50px auto;
+    padding: 30px;
+    background-color: #2a2a3e;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+}
+
+.survey-container h1 {
+    text-align: center;
+    margin-bottom: 33px;
+    font-weight: 600;
+    font-size: 2em;
+    color: #ff6b6b;
+}
+
+/* ==== Элемент фильма ==== */
+.survey-item {
+    margin-bottom: 25px;
+    padding: 15px;
+    border-bottom: 1px solid #444;
+}
+
+.survey-item label.movie-title {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    font-size: 1.4em;
+}
+
+/* ==== Рейтинг: слайдер + чекбокс ==== */
+.rating-control {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-wrap: nowrap;
+}
+
+/* ---- Ползунок ---- */
+.rating-control .slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    flex-grow: 1;
+    border-radius: 5px;
+    background: #555;
+    outline: none;
+    transition: background 0.3s ease;
+}
+
+.rating-control .slider::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 5px;
+    background: #555;
+}
+
+.rating-control .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: #ff6b6b;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+    margin-top: -7px;
+}
+
+.rating-control .slider::-moz-range-track {
+    height: 8px;
+    border-radius: 5px;
+    background: #555;
+}
+
+.rating-control .slider::-moz-range-progress {
+    background-color: #ff6b6b;
+    height: 8px;
+    border-radius: 5px;
+}
+
+.rating-control .slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: #ff6b6b;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+.rating-control .slider:disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* ---- Значение рейтинга ---- */
+.rating-control .slider-value {
+    width: 50px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.4em;
+}
+
+/* ==== Кастомный чекбокс Skip ==== */
+.skip-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.2em;
+    gap: 8px;
+    user-select: none;
+}
+
+/* Скрытый нативный чекбокс */
+.skip-label input[type="checkbox"] {
+    display: none;
+}
+
+/* Визуальная коробка */
+.skip-label .checkbox-ui {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ff6b6b;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Галочка */
+.skip-label .checkbox-ui::after {
+    content: "✔";
+    font-size: 16px;
+    color: #4caf50;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* При выборе */
+.skip-label input[type="checkbox"]:checked + .checkbox-ui {
+    background-color: rgba(255, 107, 107, 0.1);
+}
+
+.skip-label input[type="checkbox"]:checked + .checkbox-ui::after {
+    opacity: 1;
+}
+
+/* Текст рядом */
+.skip-label .skip-text {
+    font-weight: 400;
+    color: #fff;
+    transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.skip-label input[type="checkbox"]:checked ~ .skip-text {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+/* ==== Кнопка отправки ==== */
+.survey-form button {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    margin-top: 25px;
+    background-color: #ff6b6b;
+    color: #fff;
+    font-size: 1.4em;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+.survey-form button:hover {
+    background-color: #ff4b4b;
+}

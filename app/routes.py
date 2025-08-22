@@ -1,4 +1,5 @@
-from flask import render_template, Blueprint, request, redirect, url_for, flash, session
+from flask import render_template, Blueprint, request, redirect, url_for, flash, session, jsonify
+from flask_login import current_user
 from functools import wraps
 from . import db
 from .models import User, Rating, SURVEY_MOVIES
@@ -165,7 +166,32 @@ def profile():
     user_ratings = user.ratings
     return render_template('profile.html', user=user, ratings=user_ratings)
 
-@bp.route('/survey', methods=['GET'])
+@bp.route('/survey', methods=['GET', 'POST'])
 @login_required
 def survey():
+    if request.method == 'POST':
+        data = request.get_json()
+        for movie in SURVEY_MOVIES:
+            movie_id = str(movie["id"])
+            movie_title = movie["title"]
+
+            if movie_id not in data:
+                continue
+
+            value = data[movie_id]
+
+            if value == "skip":
+                continue
+
+            rating = Rating(
+                user_id=current_user.id,
+                movie_id=int(movie_id),
+                movie_title=movie_title,
+                rating=float(value)
+            )
+
+            db.session.add(rating)
+        db.session.commit()
+
+        return jsonify({"message": "Thank you! Your ratings are saved 🎬"})
     return render_template('survey.html', movies=SURVEY_MOVIES)

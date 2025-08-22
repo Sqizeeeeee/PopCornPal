@@ -4,3 +4,23 @@ body {
     background-color: #1a1a2e;
     color: #ffffff;
 }
+
+.profile-actions {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.profile-actions .btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #ff6b6b;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 10px;
+    transition: background 0.3s ease;
+}
+
+.profile-actions .btn:hover {
+    background-color: #ff4b4b;
+}
