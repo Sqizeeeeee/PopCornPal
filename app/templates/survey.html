@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Survey</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_survey.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    {% include 'nav.html' %}
+
+    <div class="survey-container">
+        <h1>Rate These Movies</h1>
+        <form method="POST" class="survey-form">
+            {% for movie in movies %}
+                <div class="survey-item">
+                    <label>{{ movie.title }}</label>
+                    <div class="rating-control">
+                        <input type="range" name="rating_{{ movie.id }}" min="1" max="5" step="0.5" value="3" oninput="this.nextElementSibling.value = this.value">
+                        <output>3</output> ⭐
+                        <label>
+                            <input type="checkbox" name="skip_{{ movie.id }}"> Skip
+                        </label>
+                    </div>
+                </div>
+            {% endfor %}
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

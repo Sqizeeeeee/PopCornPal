@@ -1,6 +1,7 @@
 from . import db
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import UserMixin
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)  # уникальный ID
@@ -26,3 +27,9 @@ class Rating(db.Model):
     movie_id = db.Column(db.Integer)
     movie_title = db.Column(db.String(200))
     rating = db.Column(db.Float)
+
+SURVEY_MOVIES = [
+    {"id": 1, "title": "The Matrix (1999)"},
+    {"id": 2, "title": "Pulp Fiction (1994)"},
+    # TODO: add top 10 films
+]

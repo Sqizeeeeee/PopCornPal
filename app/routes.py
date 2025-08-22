@@ -1,7 +1,7 @@
 from flask import render_template, Blueprint, request, redirect, url_for, flash, session
 from functools import wraps
 from . import db
-from .models import User
+from .models import User, Rating, SURVEY_MOVIES
 import pandas as pd
 import re
 
@@ -164,3 +164,8 @@ def profile():
     user = User.query.get(session['user_id'])
     user_ratings = user.ratings
     return render_template('profile.html', user=user, ratings=user_ratings)
+
+@bp.route('/survey', methods=['GET'])
+@login_required
+def survey():
+    return render_template('survey.html', movies=SURVEY_MOVIES)
