@@ -1,0 +1,13 @@
+<!-- templates/flash.html -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
+                    <span class="flash-close">&times;</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}

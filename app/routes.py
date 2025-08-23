@@ -22,13 +22,15 @@ def register():
         password = request.form.get('password')
 
         if User.query.filter_by(username=username).first():
-            flash("Username already exists. Try another one", "error")
-            return redirect(url_for('main.register'))
+            flash("Username already exists. Try another one", "danger")
+            return render_template('login.html')
         
+
         if User.query.filter_by(email=email).first():
-            flash("Email already registered. Try to log in", "error")
-            return render_template('register.html', username=username)
+            flash("Email already registered. Try to log in", "danger")
+            return render_template('login.html')
         
+
         if len(password) < 6:
             flash("Password is too short (min 6 characters).", "danger")
             return render_template('register.html', username=username, email=email)
@@ -37,13 +39,13 @@ def register():
             flash("Password is too long (max 15 characters).", "danger")
             return render_template('register.html', username=username, email=email)
         
+
         if not re.search(r"[A-Z]", password):
             flash("Password must contain at least one uppercase letter.", "danger")
             return render_template('register.html', username=username, email=email)
 
         new_user = User(username=username, email=email)
         new_user.set_password(password)
-
         db.session.add(new_user)
         db.session.commit()
 
@@ -64,8 +66,8 @@ def login():
         ).first()
 
         if not user or not user.check_password(password):
-            flash("Invalid username, email or password", "error")
-            return redirect(url_for('main.login'))
+            flash("Invalid username, email or password", "danger")
+            return render_template('login.html', username_or_email=username_or_email)
         
         login_user(user)
         flash(f'Welcome back, {user.username}!', "success")
@@ -78,7 +80,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash("You have been logged out", "info")
+    flash("You have been logged out successfully.", "info")
     return redirect(url_for('main.welcome'))
 
 

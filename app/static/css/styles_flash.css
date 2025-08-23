@@ -1,0 +1,51 @@
+/* static/css/flash.css */
+.flash-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.flash-message {
+    padding: 12px 20px;
+    border-radius: 8px;
+    color: #fff;
+    font-weight: 600;
+    min-width: 250px;
+    max-width: 400px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    animation: slideIn 0.5s ease forwards;
+    cursor: default;
+}
+
+/* Закрывающий крестик */
+.flash-close {
+    margin-left: 15px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Категории */
+.flash-message.success { background-color: #28a745; }
+.flash-message.error   { background-color: #dc3545; }
+.flash-message.danger  { background-color: #a71d2a; }
+.flash-message.info    { background-color: #007bff; }
+
+/* Анимация появления */
+@keyframes slideIn {
+    from { opacity: 0; transform: translateX(100%); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+
+/* Автоматическое исчезновение */
+.flash-message.fade-out {
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.5s ease;
+}

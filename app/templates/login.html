@@ -5,6 +5,7 @@
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_login.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_flash.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -15,15 +16,7 @@
         <h1>Login</h1>
 
         <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flash-messages">
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+        {% include 'flash.html' %}
 
         <form method="POST" class="login-form">
             <label for="username_or_email">Username or Email:</label>
@@ -39,6 +32,8 @@
             Don't have an account? <a href="{{ url_for('main.register') }}">Register here</a>
         </p>
     </div>
-    <script src="{{ url_for('static', filename='js/script_login.js')  }}"></script>
+    
+    <script src="{{ url_for('static', filename='js/script_flash.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/script_login.js') }}" defer></script>
 </body>
 </html>

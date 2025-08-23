@@ -5,11 +5,15 @@
     <title>{{ user.username }}'s Profile</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_profile.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_flash.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navbar -->
     {% include 'nav.html' %}
+
+    <!-- Flash messages -->
+    {% include 'flash.html' %}
 
     <div class="profile-container">
         <h1>{{ user.username }}'s Profile</h1>
@@ -47,5 +51,7 @@
         <p>You haven't rated any movies yet.</p>
         {% endif %}
     </div>
+
+    <script src="{{ url_for('static', filename='js/script_flash.js') }}" defer></script>
 </body>
 </html>

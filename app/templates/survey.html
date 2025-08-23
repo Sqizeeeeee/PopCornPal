@@ -5,11 +5,14 @@
     <title>Movie Survey</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_nav.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_survey.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_flash.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navbar -->
     {% include 'nav.html' %}
+    <!-- Flash messages -->
+    {% include 'flash.html' %}
     <!-- TODO: make a left side of slider -->
     <div class="survey-container">
         <h1>Rate These Movies</h1>
@@ -36,7 +39,7 @@
             <button type="submit">Submit</button>
         </form>
     </div>
-
-    <script src="{{ url_for('static', filename='js/script_survey.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script_flash.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/script_survey.js') }}" defer></script>
 </body>
 </html>

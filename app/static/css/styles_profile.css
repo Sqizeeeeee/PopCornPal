@@ -5,22 +5,26 @@ body {
     color: #ffffff;
 }
 
+/* Контейнер действий */
 .profile-actions {
     margin: 20px 0;
     text-align: center;
 }
 
+/* Кнопки */
 .profile-actions .btn {
     display: inline-block;
-    padding: 10px 20px;
-    background-color: #ff6b6b;
+    padding: 12px 25px;
+    background: rgba(255, 107, 107, 0.85);
     color: #fff;
     font-weight: 600;
     text-decoration: none;
-    border-radius: 10px;
-    transition: background 0.3s ease;
+    border-radius: 12px;
+    transition: background 0.3s ease, transform 0.2s ease;
+    backdrop-filter: blur(8px);
 }
 
 .profile-actions .btn:hover {
-    background-color: #ff4b4b;
+    background: rgba(255, 75, 75, 0.9);
+    transform: translateY(-2px);
 }

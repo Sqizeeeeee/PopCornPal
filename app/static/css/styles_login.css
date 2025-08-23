@@ -84,41 +84,6 @@ body {
     background: #ff3b2e;
 }
 
-/* Flash messages */
-.flash-messages {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
-}
-
-.flash-messages li {
-    padding: 12px 15px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.flash-messages li.hide {
-    opacity: 0;
-    transform: translateY(-10px);
-}
-
-.flash-messages li.success {
-    background-color: rgba(76,175,80,0.15);
-    color: #4caf50;
-    border: 1px solid #4caf50;
-}
-
-.flash-messages li.danger {
-    background-color: rgba(255,59,46,0.15);
-    color: #ff3b2e;
-    border: 1px solid #ff3b2e;
-}
-
 /* Ссылка "назад" */
 .back-link {
     margin-top: 20px;
@@ -156,7 +121,7 @@ body {
     5%   { opacity: 0.2; }
     10%  { opacity: 0.5; }
     15%  { opacity: 0.8; }
-    20%  { opacity: 1; } /* достигает полной видимости постепенно */
+    20%  { opacity: 1; }
     70%  { opacity: 0.7; }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
 }

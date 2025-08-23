@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     const surveyData = {};
     const form = document.querySelector('.survey-form');
-    if (!form) return; // если форма не найдена, выходим
+    if (!form) return;
 
     function updateSliderColor(slider) {
         const percent = ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const skip = item.querySelector('.skip-label input[type="checkbox"]');
         const movieId = item.dataset.id;
 
-        if (!slider || !output || !skip) return; // пропускаем, если чего-то нет
+        if (!slider || !output || !skip) return;
 
         let val = parseFloat(slider.value);
         surveyData[movieId] = val;
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
         if (Object.keys(surveyData).length === 0) {
-            showFlash("Please rate at least one movie or skip some.", "error");
+            addFlash('Please rate at least one movie or skip some.', 'error');
             return;
         }
 
@@ -63,18 +63,36 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         .then(res => res.json())
         .then(data => {
-            if (data.success) {
-                showFlash(data.message, "success");
-                setTimeout(() => {
-                    window.location.href = '/profile';
-                }, 1500);
-            } else {
-                showFlash(data.message || "Something went wrong.", "error");
-            }
+            addFlash(data.message, 'success');
+            setTimeout(() => {
+                window.location.href = '/profile';
+            }, 1500);
         })
         .catch(err => {
-            showFlash("Error sending data", "error");
+            addFlash('Error sending data', 'error');
             console.error(err);
         });
     });
+
+    // ⚡ Добавление нового flash-сообщения
+    function addFlash(message, category = 'info') {
+        const container = document.querySelector('.flash-container') || createFlashContainer();
+        const flash = document.createElement('div');
+        flash.className = `flash-message ${category}`;
+        flash.innerHTML = `
+            <span>${message}</span>
+            <button class="flash-close">&times;</button>
+        `;
+        container.appendChild(flash);
+
+        // 👉 тут НЕ трогаем fade-out и таймер
+        // этим займётся script_flash.js
+    }
+
+    function createFlashContainer() {
+        const container = document.createElement('div');
+        container.className = 'flash-container';
+        document.body.prepend(container);
+        return container;
+    }
 });
