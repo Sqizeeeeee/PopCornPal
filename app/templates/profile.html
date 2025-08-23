@@ -19,7 +19,7 @@
             {% if not user.survey_completed %}
                 <a class="btn" href="{{ url_for('main.survey') }}">Take the Survey</a>
             {% else %}
-                <p class="info">You have already completed the survey.</p>
+                <a class="btn" href="{{ url_for('main.rate_movie') }}">Rate a Movie</a>
             {% endif %}
         </div>
 

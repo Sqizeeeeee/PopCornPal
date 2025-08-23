@@ -36,14 +36,3 @@ class Rating(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow) 
 
 
-SURVEY_MOVIES = [
-    {"id": 356, "title": "Forrest Gump (1994)"},
-    {"id": 1721, "title": "Titanic (1997)"},
-    {"id": 296, "title": "Pulp Fiction (1994)"},
-    {"id": 2953, "title": "Home Alone 2: Lost in New York (1992)"},
-    {"id": 3307, "title": "City Lights (1931)"},
-    {"id": 2571, "title": "The Matrix (1999)"},
-    {"id": 589, "title": "Terminator 2: Judgment Day (1991)"},
-    {"id": 364, "title": "The Lion King (1994)"},
-    {"id": 2947, "title": "Goldfinger (1964)"}
-]

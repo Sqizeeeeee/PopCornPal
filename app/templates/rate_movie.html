@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rate a Movie</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_rateMovie.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    {% include 'nav.html' %}
+
+    <div class="rate-movie-container">
+        <h1>Rate a Movie</h1>
+
+        <!-- Форма поиска -->
+        <form method="GET" action="{{ url_for('main.rate_movie') }}" class="search-form">
+            <input type="text" name="q" placeholder="Enter movie name..." value="{{ query }}">
+            <button type="submit">Search</button>
+        </form>
+
+        <!-- Результаты поиска -->
+        {% if search_results %}
+            <h2>Search Results:</h2>
+            <ul class="search-results">
+                {% for movie in search_results %}
+                <li class="search-item">
+                    <span class="movie-title">{{ movie['title'] }} ({{ movie['genres'].replace('|', ' or ') }})</span>
+
+                    <!-- Форма оценки -->
+                    <form method="POST" action="{{ url_for('main.rate_movie', q=query) }}" class="rate-form">
+                        <input type="hidden" name="movie_id" value="{{ movie['id'] }}">
+
+                        <label class="rating-control">
+                            <input 
+                                type="range" 
+                                name="rating" 
+                                min="1" max="5" step="0.1" 
+                                value="{{ user_ratings[movie['id']] if movie['id'] in user_ratings else 3 }}" 
+                                class="slider"
+                            >
+                            <span class="slider-value">{{ user_ratings[movie['id']]|default(3) }}</span> ⭐
+                        </label>
+
+                        <button type="submit">Submit Rating</button>
+                    </form>
+                </li>
+                {% endfor %}
+            </ul>
+        {% elif query %}
+            <p>No results found for "{{ query }}".</p>
+        {% endif %}
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script_rateMovie.js') }}"></script>
+</body>
+</html>
