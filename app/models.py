@@ -11,7 +11,8 @@ class User(db.Model, UserMixin):   # ✅ Наследуемся от UserMixin
     username = db.Column(db.String(80), unique=True, nullable=False)  
     email = db.Column(db.String(120), unique=True, nullable=False)   
     password_hash = db.Column(db.String(128), nullable=False)        
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)     
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    survey_completed = db.Column(db.Boolean, default=False)     
 
     ratings = db.relationship('Rating', backref='user', lazy=True)
 

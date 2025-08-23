@@ -16,7 +16,11 @@
         <p>Email: {{ user.email }}</p>
 
         <div class="profile-actions">
-            <a class="btn" href="{{ url_for('main.survey') }}">Take the Survey</a>
+            {% if not user.survey_completed %}
+                <a class="btn" href="{{ url_for('main.survey') }}">Take the Survey</a>
+            {% else %}
+                <p class="info">You have already completed the survey.</p>
+            {% endif %}
         </div>
 
         <h2>Your Ratings:</h2>
@@ -34,7 +38,7 @@
                 <tr>
                     <td>{{ r.movie_title }}</td>
                     <td>{{ r.rating }}</td>
-                    <td>{{ r.created_at.strftime("%d %B") }}</td>
+                    <td>{{ r.created_at.strftime("%d %B") if r.created_at else "—" }}</td>
                 </tr>
             {% endfor %}
             </tbody>

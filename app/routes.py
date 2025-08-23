@@ -156,6 +156,11 @@ def profile():
 @bp.route('/survey', methods=['GET', 'POST'])
 @login_required
 def survey():
+    # Если пользователь уже прошёл опрос, редиректим на профиль
+    if current_user.survey_completed:
+        flash("You have already completed the survey.", "info")
+        return redirect(url_for('main.profile'))
+
     if request.method == 'POST':
         data = request.get_json()
         for movie in SURVEY_MOVIES:
@@ -178,7 +183,11 @@ def survey():
             )
 
             db.session.add(rating)
+
+        # Отмечаем, что опрос пройден
+        current_user.survey_completed = True
         db.session.commit()
 
         return jsonify({"message": "Thank you! Your ratings are saved 🎬"})
+
     return render_template('survey.html', movies=SURVEY_MOVIES)
