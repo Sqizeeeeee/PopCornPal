@@ -1,6 +1,23 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+import os
+import sys
+import pickle
+
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+
+# Добавляем src в sys.path
+SRC_PATH = os.path.join(PROJECT_ROOT, 'src')
+if SRC_PATH not in sys.path:
+    sys.path.insert(0, SRC_PATH)
+
+# Путь к модели
+MODEL_PATH = os.path.join(SRC_PATH, 'models', 'item_based', 'item_based_cf_model.pkl')
+
+# Загрузка модели
+with open(MODEL_PATH, 'rb') as f:
+    item_cf_model = pickle.load(f)
 
 # Инициализация расширений
 db = SQLAlchemy()

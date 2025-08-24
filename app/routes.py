@@ -2,7 +2,7 @@ from flask import render_template, Blueprint, request, redirect, url_for, flash,
 from flask_login import current_user, login_user, logout_user, login_required
 from . import db
 from .models import User, Rating
-from .helpers import search_movies, movies, format_movie_title, extract_year, ratings, SURVEY_MOVIES
+from .helpers import search_movies, movies, format_movie_title, extract_year, ratings, SURVEY_MOVIES, recommend_movies_for_user
 import pandas as pd
 import re
 
@@ -114,7 +114,8 @@ def top_movies():
 @login_required
 def profile():
     user = current_user
-    return render_template('profile.html', user=user, ratings=user.ratings)
+    recommendations = recommend_movies_for_user(user.id, top_n=10)
+    return render_template('profile.html', user=user, ratings=user.ratings, recommendations=recommendations)
 
 
 @bp.route('/survey', methods=['GET', 'POST'])

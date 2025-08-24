@@ -5,7 +5,7 @@ body {
     color: #ffffff;
 }
 
-/* Контейнер действий */
+/* Контейнер действий (кнопки) */
 .profile-actions {
     margin: 20px 0;
     text-align: center;
@@ -27,4 +27,74 @@ body {
 .profile-actions .btn:hover {
     background: rgba(255, 75, 75, 0.9);
     transform: translateY(-2px);
+}
+
+/* Верхний блок информации о пользователе */
+.user-info {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Нижний блок: две колонки */
+.profile-columns {
+    display: flex;
+    gap: 20px; /* расстояние между колонками */
+    flex-wrap: wrap; /* чтобы колонки адаптировались на узких экранах */
+}
+
+/* Левая и правая колонка */
+.user-ratings, .user-recommendations {
+    flex: 1; /* одинаковая ширина колонок */
+    min-width: 300px; /* минимальная ширина для адаптивности */
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+/* Заголовки блоков */
+.user-ratings h2, .user-recommendations h2 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 30px;
+    color: #ff6b6b;
+}
+
+/* Таблица рейтингов */
+.ratings-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ratings-table th, .ratings-table td {
+    padding: 10px;
+    text-align: left;
+    font-size: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Список рекомендаций */
+.user-recommendations ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.user-recommendations li {
+    margin-bottom: 15px;
+    padding: 8px 12px;
+    background-color: rgba(255, 107, 107, 0.2);
+    border-radius: 8px;
+    font-size: 20px;
+    transition: background 0.3s ease;
+}
+
+.user-recommendations li:hover {
+    background-color: rgba(255, 107, 107, 0.35);
+}
+
+/* Адаптивность для мобильных */
+@media (max-width: 800px) {
+    .profile-columns {
+        flex-direction: column;
+    }
 }

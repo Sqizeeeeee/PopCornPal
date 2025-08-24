@@ -16,40 +16,62 @@
     {% include 'flash.html' %}
 
     <div class="profile-container">
-        <h1>{{ user.username }}'s Profile</h1>
-        <p>Email: {{ user.email }}</p>
-
-        <div class="profile-actions">
-            {% if not user.survey_completed %}
-                <a class="btn" href="{{ url_for('main.survey') }}">Take the Survey</a>
-            {% else %}
-                <a class="btn" href="{{ url_for('main.rate_movie') }}">Rate a Movie</a>
-            {% endif %}
+    <!-- Верхний блок: информация о пользователе -->
+        <div class="user-info">
+            <h1>{{ user.username }}'s Profile</h1>
+            <p>Email: {{ user.email }}</p>
+            <div class="profile-actions">
+                {% if not user.survey_completed %}
+                    <a class="btn" href="{{ url_for('main.survey') }}">Take the Survey</a>
+                {% else %}
+                    <a class="btn" href="{{ url_for('main.rate_movie') }}">Rate a Movie</a>
+                {% endif %}
+            </div>
         </div>
 
-        <h2>Your Ratings:</h2>
-        {% if ratings %}
-        <table class="ratings-table">
-            <thead>
-                <tr>
-                    <th>Movie</th>
-                    <th>Rating</th>
-                    <th>When</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% for r in ratings %}
-                <tr>
-                    <td>{{ r.movie_title }}</td>
-                    <td>{{ r.rating }}</td>
-                    <td>{{ r.created_at.strftime("%d %B") if r.created_at else "—" }}</td>
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p>You haven't rated any movies yet.</p>
-        {% endif %}
+        <!-- Нижний блок: две колонки -->
+        <div class="profile-columns">
+            <!-- Левая колонка: оценки пользователя -->
+            <div class="user-ratings">
+                <h2>Your Ratings:</h2>
+                {% if ratings %}
+                <table class="ratings-table">
+                    <thead>
+                        <tr>
+                            <th>Movie</th>
+                            <th>Rating</th>
+                            <th>When</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for r in ratings %}
+                        <tr>
+                            <td>{{ r.movie_title }}</td>
+                            <td>{{ r.rating }}</td>
+                            <td>{{ r.created_at.strftime("%d %B") if r.created_at else "—" }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p>You haven't rated any movies yet.</p>
+                {% endif %}
+            </div>
+
+            <!-- Правая колонка: рекомендации -->
+            <div class="user-recommendations">
+                <h2>Recommended for You:</h2>
+                {% if recommendations %}
+                <ul>
+                    {% for m in recommendations %}
+                        <li>{{ m.title }} - Predicted rating: {{ m.predicted_rating }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p>No recommendations available.</p>
+                {% endif %}
+            </div>
+        </div>
     </div>
 
     <script src="{{ url_for('static', filename='js/script_flash.js') }}" defer></script>
