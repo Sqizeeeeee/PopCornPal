@@ -1,0 +1,98 @@
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: #1a1a2e;
+    color: #ffffff;
+}
+
+.search-container {
+    max-width: 650px;
+    margin: 40px auto;
+    background: #1f1f3d;
+    padding: 30px 25px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.search-container h1 {
+    text-align: center;
+    margin: 0 0 10px 0;
+    font-size: 28px;
+}
+
+.search-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.search-container button {
+    padding: 12px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(255, 107, 107, 0.85);
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s ease-in-out;
+}
+
+.search-container button:hover {
+    background: rgba(255, 75, 75, 0.9);
+}
+
+/* Таблица результатов */
+.results-table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+.results-table th, .results-table td {
+    padding: 12px;
+    border-bottom: 1px solid #444;
+    text-align: left;
+}
+
+.results-table th {
+    font-weight: 600;
+}
+
+.results-table td {
+    font-size: 14px;
+}
+
+/* Сетка для жанров */
+.genres-grid, .years-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 20px;
+}
+
+.genre-item, .year-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.genre-item input[type="checkbox"], .year-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #3a9ad9; /* цвет галочки */
+}
+
+/* Лейблы */
+.genre-item label, .year-item label {
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Дополнительно — визуальные отступы для формы */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}

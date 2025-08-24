@@ -2,7 +2,8 @@ from flask import render_template, Blueprint, request, redirect, url_for, flash,
 from flask_login import current_user, login_user, logout_user, login_required
 from . import db
 from .models import User, Rating
-from .helpers import search_movies, movies, format_movie_title, extract_year, ratings, SURVEY_MOVIES, recommend_movies_for_user
+from .helpers import search_movies, movies, format_movie_title, extract_year, ratings, SURVEY_MOVIES, recommend_movies_for_user, recommend_movies_filtered
+from app import item_cf_model
 import pandas as pd
 import re
 
@@ -110,46 +111,6 @@ def top_movies():
     return render_template('top_by_genre.html', top_by_genre=top_by_genre)
 
 
-@bp.route('/profile')
-@login_required
-def profile():
-    user = current_user
-    recommendations = recommend_movies_for_user(user.id, top_n=10)
-    return render_template('profile.html', user=user, ratings=user.ratings, recommendations=recommendations)
-
-
-@bp.route('/survey', methods=['GET', 'POST'])
-@login_required
-def survey():
-    if current_user.survey_completed:
-        flash("You have already completed the survey.", "info")
-        return redirect(url_for('main.profile'))
-
-    if request.method == 'POST':
-        data = request.get_json()
-        for movie in SURVEY_MOVIES:
-            movie_id = str(movie["id"])
-            movie_title = movie["title"]
-
-            if movie_id not in data or data[movie_id] == "skip":
-                continue
-
-            rating = Rating(
-                user_id=current_user.id,
-                movie_id=int(movie_id),
-                movie_title=movie_title,
-                rating=float(data[movie_id])
-            )
-            db.session.add(rating)
-
-        current_user.survey_completed = True
-        db.session.commit()
-
-        return jsonify({"message": "Thank you! Your ratings are saved 🎬"})
-
-    return render_template('survey.html', movies=SURVEY_MOVIES)
-
-
 @bp.route('/rate-movie', methods=['GET', 'POST'])
 @login_required
 def rate_movie():
@@ -209,4 +170,76 @@ def rate_movie():
         query=query,
         search_results=search_results,
         user_ratings=user_ratings
+    )
+
+
+@bp.route('/profile')
+@login_required
+def profile():
+    user = current_user
+    recommendations = recommend_movies_for_user(user.id, top_n=10)
+    return render_template('profile.html', user=user, ratings=user.ratings, recommendations=recommendations)
+
+
+@bp.route('/survey', methods=['GET', 'POST'])
+@login_required
+def survey():
+    if current_user.survey_completed:
+        flash("You have already completed the survey.", "info")
+        return redirect(url_for('main.profile'))
+
+    if request.method == 'POST':
+        data = request.get_json()
+        for movie in SURVEY_MOVIES:
+            movie_id = str(movie["id"])
+            movie_title = movie["title"]
+
+            if movie_id not in data or data[movie_id] == "skip":
+                continue
+
+            rating = Rating(
+                user_id=current_user.id,
+                movie_id=int(movie_id),
+                movie_title=movie_title,
+                rating=float(data[movie_id])
+            )
+            db.session.add(rating)
+
+        current_user.survey_completed = True
+        db.session.commit()
+
+        return jsonify({"message": "Thank you! Your ratings are saved 🎬"})
+
+    return render_template('survey.html', movies=SURVEY_MOVIES)
+
+
+@bp.route('/search', methods=['GET', 'POST'])
+@login_required
+def search():
+    genres = []
+    year_ranges = []
+    recommendations = []
+
+    # Получаем все уникальные жанры для формы
+    all_genres = sorted(set(g for m in movies['genres'] for g in m.split('|')))
+
+    if request.method == 'POST':
+        # Получаем выбранные жанры и эпохи
+        genres = request.form.getlist('genres')          
+        year_ranges = request.form.getlist('year_ranges')  
+
+        # Получаем рекомендации с фильтрацией и исключением уже оценённых фильмов
+        recommendations = recommend_movies_filtered(
+            user_id=current_user.id,
+            genres=genres,
+            year_ranges=year_ranges,
+            top_n=10
+        )
+
+    return render_template(
+        'search.html',
+        all_genres=all_genres,
+        genres=genres,
+        year_ranges=year_ranges,
+        results=recommendations
     )

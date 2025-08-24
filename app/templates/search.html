@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movie Search</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_nav.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_flash.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_search.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    {% include 'nav.html' %}
+    {% include 'flash.html' %}
+
+    <div class="search-container">
+        <h1>Find Movies for You</h1>
+        <form method="POST" action="{{ url_for('main.search') }}">
+            <!-- Year ranges -->
+            <div class="form-group">
+                <label>Year ranges:</label>
+                <div class="years-grid">
+                    <div class="year-item">
+                        <input type="checkbox" name="year_ranges" value="<=1950" id="year_1"
+                            {% if '<=1950' in year_ranges %}checked{% endif %}>
+                        <label for="year_1">Before 1950</label>
+                    </div>
+                    <div class="year-item">
+                        <input type="checkbox" name="year_ranges" value="1950-1970" id="year_2"
+                            {% if '1950-1970' in year_ranges %}checked{% endif %}>
+                        <label for="year_2">1950 - 1970</label>
+                    </div>
+                    <div class="year-item">
+                        <input type="checkbox" name="year_ranges" value="1970-1990" id="year_3"
+                            {% if '1970-1990' in year_ranges %}checked{% endif %}>
+                        <label for="year_3">1970 - 1990</label>
+                    </div>
+                    <div class="year-item">
+                        <input type="checkbox" name="year_ranges" value=">=1990" id="year_4"
+                            {% if '>=1990' in year_ranges %}checked{% endif %}>
+                        <label for="year_4">After 1990</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Genres -->
+            <div class="form-group">
+                <label for="genres">Genres:</label>
+                <div class="genres-grid">
+                    {% for genre in all_genres %}
+                        <div class="genre-item">
+                            <input type="checkbox" name="genres" value="{{ genre }}" id="genre_{{ loop.index }}"
+                                {% if genre in genres %}checked{% endif %}>
+                            <label for="genre_{{ loop.index }}">{{ genre }}</label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="form-group">
+                <button type="submit">Search</button>
+            </div>
+        </form>
+
+        <!-- Results -->
+        {% if results %}
+        <h2>Recommended Movies</h2>
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>Movie</th>
+                    <th>Genres</th>
+                    <th>Predicted Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for movie in results %}
+                <tr>
+                    <td>{{ movie.title }}</td>
+                    <td>{{ movie.genres }}</td>
+                    <td>{{ movie.predicted_rating }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            {% if genres or year_ranges %}
+                <p>No movies found matching your criteria.</p>
+            {% endif %}
+        {% endif %}
+    </div>
+</body>
+</html>

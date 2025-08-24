@@ -2,6 +2,7 @@ from rapidfuzz import process, fuzz
 import pandas as pd
 import re
 from app import item_cf_model
+from .models import Rating
 
 # Загружаем фильмы
 movies = pd.read_csv(
@@ -133,3 +134,87 @@ def recommend_movies_for_user(user_id, top_n=5):
             top_movies.append({'id': movie_id, 'title': title, 'predicted_rating': round(rating, 2)})
 
     return top_movies
+
+
+def recommend_movies_filtered(user_id, genres=None, year_ranges=None, top_n=10):
+    """
+    Рекомендует фильмы пользователю с учётом фильтров по жанрам и эпохам,
+    исключая фильмы, которые пользователь уже оценил в базе.
+    
+    :param user_id: ID пользователя
+    :param genres: список выбранных жанров
+    :param year_ranges: список выбранных эпох
+    :param top_n: количество фильмов для рекомендации
+    :return: список словарей {'id', 'title', 'genres', 'predicted_rating'}
+    """
+    genres = genres or []
+    year_ranges = year_ranges or []
+
+    # Преобразуем выбранные эпохи в интервалы годов
+    intervals = []
+    for yr in year_ranges:
+        if yr == '<=1950':
+            intervals.append((None, 1950))
+        elif yr == '1950-1970':
+            intervals.append((1950, 1970))
+        elif yr == '1970-1990':
+            intervals.append((1970, 1990))
+        elif yr == '>=1990':
+            intervals.append((1990, None))
+
+    # Получаем set movie_id уже оценённых пользователем фильмов
+    rated_movie_ids = {r.movie_id for r in Rating.query.filter_by(user_id=user_id).all()}
+
+    filtered_movies = []
+
+    for _, row in movies.iterrows():
+        movie_id = row['movie_id']
+        movie_genres = row['genres'].split('|')
+        _, year = extract_year(row['title'])
+
+        # Исключаем фильмы, которые пользователь уже оценил
+        if movie_id in rated_movie_ids:
+            continue
+
+        # Фильтрация по жанрам
+        if genres and not any(g in movie_genres for g in genres):
+            continue
+
+        # Фильтрация по выбранным эпохам
+        if intervals:
+            match_interval = False
+            for yf, yt in intervals:
+                if ((yf is None or (year and year >= yf)) and
+                    (yt is None or (year and year <= yt))):
+                    match_interval = True
+                    break
+            if not match_interval:
+                continue
+
+        filtered_movies.append(row)
+
+    # Предсказания рейтингов через item_cf_model
+    predictions = []
+    for row in filtered_movies:
+        movie_id = row['movie_id']
+        pred_rating = item_cf_model.predict(user_id, movie_id)
+
+        # Коррекция слишком высоких рейтингов
+        _, year = extract_year(row['title'])
+        if pred_rating > 4.7:
+            if year and year <= 1980:
+                pred_rating = 4.7 + (pred_rating - 4.7) * 0.85
+            else:
+                pred_rating = 4.7 + (pred_rating - 4.7) * 0.93
+
+        predictions.append({
+            'id': movie_id,
+            'title': clean_title(row['title']),
+            'genres': row['genres'],
+            'predicted_rating': round(pred_rating, 2)
+        })
+
+    # Сортировка по предсказанному рейтингу
+    predictions.sort(key=lambda x: x['predicted_rating'], reverse=True)
+
+    return predictions[:top_n]
