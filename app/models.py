@@ -34,5 +34,3 @@ class Rating(db.Model):
     movie_title = db.Column(db.String(200))
     rating = db.Column(db.Float)
     created_at = db.Column(db.DateTime, default=datetime.utcnow) 
-
-
