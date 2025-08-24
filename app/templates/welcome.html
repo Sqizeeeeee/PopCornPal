@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>PopCornPal 🍿</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_welcome.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles_flash.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,7 +29,7 @@
             </div>
         </div>
     </nav>
-
+    {% include "flash.html" %}
     <header>
         <h1>Find Your Perfect Movie Night with PopCornPal!</h1>
         <p class="subtitle">Discover, rate, and explore the best movies from all genres!</p>
@@ -48,5 +49,6 @@
             </div>
         </section>
     </main>
+    <script src="{{ url_for('static', filename='js/script_flash.js') }}" defer></script>
 </body>
 </html>

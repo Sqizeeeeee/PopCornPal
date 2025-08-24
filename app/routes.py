@@ -23,12 +23,12 @@ def register():
 
         if User.query.filter_by(username=username).first():
             flash("Username already exists. Try another one", "danger")
-            return render_template('login.html')
+            return render_template('register.html')
         
 
         if User.query.filter_by(email=email).first():
             flash("Email already registered. Try to log in", "danger")
-            return render_template('login.html')
+            return render_template('register.html', email=email)
         
 
         if len(password) < 6:
