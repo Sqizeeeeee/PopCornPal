@@ -1,4 +1,4 @@
-from rapidfuzz import process, fuzz
+from rapidfuzz import fuzz
 import pandas as pd
 import re
 from app import item_cf_model
@@ -20,75 +20,6 @@ ratings = pd.read_csv(
     engine='python'
 )
 
-def clean_title(title):
-    title = title.strip()
-
-    # Если год в начале, переносим в конец
-    match = re.match(r'^\((\d{4})\)\s*(.*)', title)
-    if match:
-        title = f"{match.group(2)} ({match.group(1)})"
-
-    # Формат "Lastname, Firstname" -> "Firstname Lastname"
-    if ', ' in title:
-        parts = title.split(', ')
-        if len(parts) == 2:
-            title = f"{parts[1]} {parts[0]}"
-
-    # Убираем артикли в начале
-    title = re.sub(r'^(the|a|an) ', '', title, flags=re.I)
-
-    # Убираем артикли в конце после запятой
-    title = re.sub(r', (the|a|an)$', '', title, flags=re.I)
-
-    # Убираем текст после скобок, который часто мусор
-    title = re.sub(r'\s+Institute.*$', '', title, flags=re.I)
-
-    # Первая буква каждого слова заглавная
-    title = title.title()
-
-    return title
-
-# Создаём поле для поиска
-movies['search_title'] = movies['title'].apply(clean_title)
-
-def search_movies(query, limit=10):
-    query_clean = clean_title(query)
-    results = []
-
-    for idx, row in movies.iterrows():
-        title = row['search_title']
-        score1 = fuzz.token_sort_ratio(query_clean, title)
-        score2 = fuzz.partial_ratio(query_clean, title)
-        score = max(score1, score2)
-        results.append((row['movie_id'], row['title'], row['genres'], score))
-
-    results = sorted(results, key=lambda x: x[3], reverse=True)
-    matched_movies = []
-    for movie_id, title, genres, score in results[:limit]:
-        matched_movies.append({
-            'id': movie_id,
-            'title': title,
-            'genres': genres,
-            'score': score
-        })
-
-    return matched_movies
-
-def format_movie_title(title: str) -> str:
-    if ', ' in title:
-        parts = title.split(', ')
-        if len(parts) == 2:
-            return f"{parts[1]} {parts[0]}"
-    return title
-
-def extract_year(title):
-    match = re.search(r'\((\d{4})\)', title)
-    if match:
-        year = int(match.group(1))
-        clean_title_only = re.sub(r'\s*\(\d{4}\)', '', title)
-        return clean_title_only, year
-    return title, None
-
 SURVEY_MOVIES = [
     {"id": 356, "title": "Forrest Gump (1994)"},
     {"id": 1721, "title": "Titanic (1997)"},
@@ -101,6 +32,74 @@ SURVEY_MOVIES = [
     {"id": 2947, "title": "Goldfinger (1964)"}
 ]
 
+
+def extract_year(title: str):
+    """Возвращает (чистое название, год)"""
+    title = title.strip()
+
+    # 1. Если год стоит в начале → переносим в конец
+    match_start = re.match(r'^\((\d{4})\)\s*(.*)', title)
+    if match_start:
+        year = int(match_start.group(1))
+        title = f"{match_start.group(2)} ({year})"
+        return _normalize_title(title), year
+
+    # 2. Ищем год в скобках (обычно в конце)
+    match_end = re.search(r'\((\d{4})\)', title)
+    if match_end:
+        year = int(match_end.group(1))
+        clean_title = re.sub(r'\s*\(\d{4}\)', '', title).strip()
+        title = f"{clean_title} ({year})"
+        return _normalize_title(title), year
+
+    return _normalize_title(title), None
+
+
+def _normalize_title(title: str) -> str:
+    """Форматирует строку — убираем артикли, приводим регистр"""
+    # "Lastname, Firstname" -> "Firstname Lastname"
+    if ', ' in title:
+        parts = title.split(', ')
+        if len(parts) == 2:
+            title = f"{parts[1]} {parts[0]}"
+
+    # Убираем артикли в начале
+    title = re.sub(r'^(the|a|an)\s+', '', title, flags=re.I)
+
+    # Убираем артикли в конце после запятой
+    title = re.sub(r',\s*(the|a|an)$', '', title, flags=re.I)
+
+    # Убираем всякий мусор типа "Institute..."
+    title = re.sub(r'\s+Institute.*$', '', title, flags=re.I)
+
+    # Title Case
+    title = title.title()
+
+    return title
+
+
+# Создаём поле для поиска
+movies['search_title'] = movies['title'].apply(lambda t: extract_year(t)[0])
+
+
+def search_movies(query, limit=10):
+    query_clean, _ = extract_year(query)
+    results = []
+
+    for idx, row in movies.iterrows():
+        title, _ = extract_year(row['title'])
+        score1 = fuzz.token_sort_ratio(query_clean, title)
+        score2 = fuzz.partial_ratio(query_clean, title)
+        score = max(score1, score2)
+        results.append((row['movie_id'], title, row['genres'], score))
+
+    results = sorted(results, key=lambda x: x[3], reverse=True)
+    return [
+        {'id': mid, 'title': t, 'genres': g, 'score': s}
+        for mid, t, g, s in results[:limit]
+    ]
+
+
 def recommend_movies_for_user(user_id, top_n=5):
     user_rated = ratings[ratings['user_id'] == user_id]['movie_id'].tolist()
     all_movie_ids = movies['movie_id'].tolist()
@@ -109,48 +108,36 @@ def recommend_movies_for_user(user_id, top_n=5):
     for movie_id in all_movie_ids:
         if movie_id not in user_rated:
             pred_rating = item_cf_model.predict(user_id, movie_id)
-            
-            # Получаем год фильма
+
+            # Получаем нормализованный тайтл и год
             movie_title = movies.loc[movies['movie_id'] == movie_id, 'title'].values[0]
-            _, year = extract_year(movie_title)
-            
-            # Корректировка слишком высоких рейтингов
+            clean_title, year = extract_year(movie_title)
+
+            # Коррекция слишком высоких рейтингов
             if pred_rating > 4.7:
                 if year and year <= 1980:
                     pred_rating = 4.7 + (pred_rating - 4.7) * 0.85
                 else:
                     pred_rating = 4.7 + (pred_rating - 4.7) * 0.93
 
-            predictions.append((movie_id, pred_rating))
+            predictions.append((movie_id, clean_title, pred_rating))
 
-    # Сортировка по предсказанным рейтингам
-    predictions.sort(key=lambda x: x[1], reverse=True)
+    predictions.sort(key=lambda x: x[2], reverse=True)
 
-    top_movies = []
-    for movie_id, rating in predictions[:top_n]:
-        movie_row = movies.loc[movies['movie_id'] == movie_id]
-        if not movie_row.empty:
-            title = clean_title(movie_row['title'].values[0])
-            top_movies.append({'id': movie_id, 'title': title, 'predicted_rating': round(rating, 2)})
-
-    return top_movies
+    return [
+        {'id': mid, 'title': t, 'predicted_rating': round(r, 2)}
+        for mid, t, r in predictions[:top_n]
+    ]
 
 
 def recommend_movies_filtered(user_id, genres=None, year_ranges=None, top_n=10):
-    """
-    Рекомендует фильмы пользователю с учётом фильтров по жанрам и эпохам,
-    исключая фильмы, которые пользователь уже оценил в базе.
-    
-    :param user_id: ID пользователя
-    :param genres: список выбранных жанров
-    :param year_ranges: список выбранных эпох
-    :param top_n: количество фильмов для рекомендации
-    :return: список словарей {'id', 'title', 'genres', 'predicted_rating'}
-    """
     genres = genres or []
     year_ranges = year_ranges or []
 
-    # Преобразуем выбранные эпохи в интервалы годов
+    # Все уникальные жанры
+    all_genres = set(g for m in movies['genres'] for g in m.split('|'))
+
+    # Преобразуем выбранные эпохи в интервалы
     intervals = []
     for yr in year_ranges:
         if yr == '<=1950':
@@ -162,45 +149,37 @@ def recommend_movies_filtered(user_id, genres=None, year_ranges=None, top_n=10):
         elif yr == '>=1990':
             intervals.append((1990, None))
 
-    # Получаем set movie_id уже оценённых пользователем фильмов
     rated_movie_ids = {r.movie_id for r in Rating.query.filter_by(user_id=user_id).all()}
-
     filtered_movies = []
 
     for _, row in movies.iterrows():
         movie_id = row['movie_id']
+        clean_title, year = extract_year(row['title'])
         movie_genres = row['genres'].split('|')
-        _, year = extract_year(row['title'])
 
-        # Исключаем фильмы, которые пользователь уже оценил
         if movie_id in rated_movie_ids:
             continue
 
-        # Фильтрация по жанрам
-        if genres and not any(g in movie_genres for g in genres):
-            continue
+        if genres and len(genres) < len(all_genres):
+            if not any(g in movie_genres for g in genres):
+                continue
 
-        # Фильтрация по выбранным эпохам
         if intervals:
             match_interval = False
             for yf, yt in intervals:
                 if ((yf is None or (year and year >= yf)) and
-                    (yt is None or (year and year <= yt))):
+                        (yt is None or (year and year <= yt))):
                     match_interval = True
                     break
             if not match_interval:
                 continue
 
-        filtered_movies.append(row)
+        filtered_movies.append((movie_id, clean_title, row['genres'], year))
 
-    # Предсказания рейтингов через item_cf_model
     predictions = []
-    for row in filtered_movies:
-        movie_id = row['movie_id']
+    for movie_id, clean_title, genres_str, year in filtered_movies:
         pred_rating = item_cf_model.predict(user_id, movie_id)
 
-        # Коррекция слишком высоких рейтингов
-        _, year = extract_year(row['title'])
         if pred_rating > 4.7:
             if year and year <= 1980:
                 pred_rating = 4.7 + (pred_rating - 4.7) * 0.85
@@ -209,12 +188,11 @@ def recommend_movies_filtered(user_id, genres=None, year_ranges=None, top_n=10):
 
         predictions.append({
             'id': movie_id,
-            'title': clean_title(row['title']),
-            'genres': row['genres'],
+            'title': clean_title,
+            'genres': genres_str,
             'predicted_rating': round(pred_rating, 2)
         })
 
-    # Сортировка по предсказанному рейтингу
     predictions.sort(key=lambda x: x['predicted_rating'], reverse=True)
 
     return predictions[:top_n]
