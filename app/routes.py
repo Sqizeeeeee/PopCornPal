@@ -200,11 +200,30 @@ def search():
     genres = []
     year_ranges = []
     recommendations = []
+
+    # Все жанры
     all_genres = sorted(set(g for m in movies['genres'] for g in m.split('|')))
+
+    # Опции для годов
+    year_options = ['<=1950', '1950-1970', '1970-1990', '>=1990']
+    year_labels = ['Before 1950', '1950 - 1970', '1970 - 1990', 'After 1990']
+    year_pairs = list(zip(year_options, year_labels))  # создаём пары (value, label)
 
     if request.method == 'POST':
         genres = request.form.getlist('genres')
         year_ranges = request.form.getlist('year_ranges')
-        recommendations = recommend_movies_filtered(user_id=current_user.id, genres=genres, year_ranges=year_ranges, top_n=10)
+        recommendations = recommend_movies_filtered(
+            user_id=current_user.id,
+            genres=genres,
+            year_ranges=year_ranges,
+            top_n=10
+        )
 
-    return render_template('search.html', all_genres=all_genres, genres=genres, year_ranges=year_ranges, results=recommendations)
+    return render_template(
+        'search.html',
+        all_genres=all_genres,
+        genres=genres,
+        year_ranges=year_ranges,
+        results=recommendations,
+        year_pairs=year_pairs
+    )

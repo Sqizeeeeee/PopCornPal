@@ -96,3 +96,61 @@ body {
     flex-direction: column;
     gap: 8px;
 }
+
+/* ==== Кастомные чекбоксы ==== */
+.custom-checkbox {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 1.1em;
+    gap: 8px;
+    user-select: none;
+}
+
+/* Скрытый нативный чекбокс */
+.custom-checkbox input[type="checkbox"] {
+    display: none;
+}
+
+/* Визуальная коробка */
+.custom-checkbox .checkbox-ui {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ff6b6b;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Галочка */
+.custom-checkbox .checkbox-ui::after {
+    content: "✔";
+    font-size: 16px;
+    color: #4caf50;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+/* При выборе */
+.custom-checkbox input[type="checkbox"]:checked + .checkbox-ui {
+    background-color: rgba(255, 107, 107, 0.1);
+}
+
+.custom-checkbox input[type="checkbox"]:checked + .checkbox-ui::after {
+    opacity: 1;
+}
+
+/* Текст рядом */
+.custom-checkbox .checkbox-text {
+    font-weight: 400;
+    color: #fff;
+    transition: color 0.2s ease, font-weight 0.2s ease;
+}
+
+.custom-checkbox input[type="checkbox"]:checked ~ .checkbox-text {
+    color: #ff6b6b;
+    font-weight: 600;
+}

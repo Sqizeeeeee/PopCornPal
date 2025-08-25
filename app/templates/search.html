@@ -15,42 +15,36 @@
     <div class="search-container">
         <h1>Find Movies for You</h1>
         <form method="POST" action="{{ url_for('main.search') }}">
+
             <!-- Year ranges -->
             <div class="form-group">
                 <label>Year ranges:</label>
                 <div class="years-grid">
-                    <div class="year-item">
-                        <input type="checkbox" name="year_ranges" value="<=1950" id="year_1"
-                            {% if '<=1950' in year_ranges %}checked{% endif %}>
-                        <label for="year_1">Before 1950</label>
-                    </div>
-                    <div class="year-item">
-                        <input type="checkbox" name="year_ranges" value="1950-1970" id="year_2"
-                            {% if '1950-1970' in year_ranges %}checked{% endif %}>
-                        <label for="year_2">1950 - 1970</label>
-                    </div>
-                    <div class="year-item">
-                        <input type="checkbox" name="year_ranges" value="1970-1990" id="year_3"
-                            {% if '1970-1990' in year_ranges %}checked{% endif %}>
-                        <label for="year_3">1970 - 1990</label>
-                    </div>
-                    <div class="year-item">
-                        <input type="checkbox" name="year_ranges" value=">=1990" id="year_4"
-                            {% if '>=1990' in year_ranges %}checked{% endif %}>
-                        <label for="year_4">After 1990</label>
-                    </div>
+                    {% for value, label in year_pairs %}
+                        <div class="year-item">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="year_ranges" value="{{ value }}"
+                                    {% if value in year_ranges %}checked{% endif %}>
+                                <span class="checkbox-ui" aria-hidden="true"></span>
+                                <span class="checkbox-text">{{ label }}</span>
+                            </label>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
 
             <!-- Genres -->
             <div class="form-group">
-                <label for="genres">Genres:</label>
+                <label>Genres:</label>
                 <div class="genres-grid">
                     {% for genre in all_genres %}
                         <div class="genre-item">
-                            <input type="checkbox" name="genres" value="{{ genre }}" id="genre_{{ loop.index }}"
-                                {% if genre in genres %}checked{% endif %}>
-                            <label for="genre_{{ loop.index }}">{{ genre }}</label>
+                            <label class="custom-checkbox">
+                                <input type="checkbox" name="genres" value="{{ genre }}"
+                                    {% if genre in genres %}checked{% endif %}>
+                                <span class="checkbox-ui" aria-hidden="true"></span>
+                                <span class="checkbox-text">{{ genre }}</span>
+                            </label>
                         </div>
                     {% endfor %}
                 </div>
@@ -89,5 +83,7 @@
             {% endif %}
         {% endif %}
     </div>
+
+    <script src="{{ url_for('static', filename='js/script_search.js') }}" defer></script>
 </body>
 </html>
