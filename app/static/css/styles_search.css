@@ -8,7 +8,6 @@ body {
 .search-container {
     max-width: 650px;
     margin: 40px auto;
-    background: #1f1f3d;
     padding: 30px 25px;
     border-radius: 12px;
     display: flex;
@@ -28,6 +27,12 @@ body {
     gap: 20px;
 }
 
+.first-block {
+    background: #1f1f3d;
+    padding: 50px;
+    border-radius: 30px;
+}
+
 .search-container button {
     padding: 12px;
     border-radius: 8px;
@@ -44,6 +49,15 @@ body {
     background: rgba(255, 75, 75, 0.9);
 }
 
+
+.results-container {
+    max-width: 900px; /* шире формы */
+    margin: 20px auto 50px auto;
+    background: #1f1f3d;
+    padding: 25px 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+}
 /* Таблица результатов */
 .results-table {
     width: 100%;
@@ -62,7 +76,11 @@ body {
 }
 
 .results-table td {
-    font-size: 14px;
+    font-size: 22px;
+}
+
+.input-block {
+    font-size: 55px;
 }
 
 /* Сетка для жанров */
@@ -147,10 +165,17 @@ body {
 .custom-checkbox .checkbox-text {
     font-weight: 400;
     color: #fff;
+    margin-bottom: 5px;
+    font-size: 22px;
     transition: color 0.2s ease, font-weight 0.2s ease;
 }
 
 .custom-checkbox input[type="checkbox"]:checked ~ .checkbox-text {
     color: #ff6b6b;
     font-weight: 600;
+}
+
+.mmm {
+    font-size: 35px;
+    margin-bottom: 7px;
 }

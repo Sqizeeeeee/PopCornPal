@@ -13,74 +13,74 @@
     {% include 'flash.html' %}
 
     <div class="search-container">
-        <h1>Find Movies for You</h1>
-        <form method="POST" action="{{ url_for('main.search') }}">
+        <div class="first-block">
+            <h1>Find Movies for You</h1>
+            <form method="POST" action="{{ url_for('main.search') }}">
 
-            <!-- Year ranges -->
-            <div class="form-group">
-                <label>Year ranges:</label>
-                <div class="years-grid">
-                    {% for value, label in year_pairs %}
-                        <div class="year-item">
-                            <label class="custom-checkbox">
-                                <input type="checkbox" name="year_ranges" value="{{ value }}"
-                                    {% if value in year_ranges %}checked{% endif %}>
-                                <span class="checkbox-ui" aria-hidden="true"></span>
-                                <span class="checkbox-text">{{ label }}</span>
-                            </label>
-                        </div>
-                    {% endfor %}
+                <!-- Year ranges -->
+                <div class="form-group">
+                    <label class="mmm">Year ranges:</label>
+                    <div class="years-grid">
+                        {% for value, label in year_pairs %}
+                            <div class="year-item">
+                                <label class="custom-checkbox">
+                                    <input type="checkbox" name="year_ranges" value="{{ value }}"
+                                        {% if value in year_ranges %}checked{% endif %}>
+                                    <span class="checkbox-ui" aria-hidden="true"></span>
+                                    <span class="checkbox-text">{{ label }}</span>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
 
-            <!-- Genres -->
-            <div class="form-group">
-                <label>Genres:</label>
-                <div class="genres-grid">
-                    {% for genre in all_genres %}
-                        <div class="genre-item">
-                            <label class="custom-checkbox">
-                                <input type="checkbox" name="genres" value="{{ genre }}"
-                                    {% if genre in genres %}checked{% endif %}>
-                                <span class="checkbox-ui" aria-hidden="true"></span>
-                                <span class="checkbox-text">{{ genre }}</span>
-                            </label>
-                        </div>
-                    {% endfor %}
+                <!-- Genres -->
+                <div class="form-group">
+                    <label class="mmm">Genres:</label>
+                    <div class="genres-grid">
+                        {% for genre in all_genres %}
+                            <div class="genre-item">
+                                <label class="custom-checkbox">
+                                    <input type="checkbox" name="genres" value="{{ genre }}"
+                                        {% if genre in genres %}checked{% endif %} class="input-block">
+                                    <span class="checkbox-ui" aria-hidden="true"></span>
+                                    <span class="checkbox-text">{{ genre }}</span>
+                                </label>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
 
-            <!-- Submit -->
-            <div class="form-group">
-                <button type="submit">Search</button>
-            </div>
-        </form>
+                <!-- Submit -->
+                <div class="form-group">
+                    <button type="submit">Search</button>
+                </div>
+            </form>
+        </div>
 
         <!-- Results -->
         {% if results %}
-        <h2>Recommended Movies</h2>
-        <table class="results-table">
-            <thead>
-                <tr>
-                    <th>Movie</th>
-                    <th>Genres</th>
-                    <th>Predicted Rating</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for movie in results %}
-                <tr>
-                    <td>{{ movie.title }}</td>
-                    <td>{{ movie.genres }}</td>
-                    <td>{{ movie.predicted_rating }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-            {% if genres or year_ranges %}
-                <p>No movies found matching your criteria.</p>
-            {% endif %}
+        <div class="results-container">
+            <h2>Recommended Movies</h2>
+            <table class="results-table">
+                <thead>
+                    <tr>
+                        <th>Movie</th>
+                        <th>Genres</th>
+                        <th>Predicted Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for movie in results %}
+                    <tr>
+                        <td>{{ movie.title }}</td>
+                        <td>{{ movie.genres }}</td>
+                        <td>{{ movie.predicted_rating }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% endif %}
     </div>
 
